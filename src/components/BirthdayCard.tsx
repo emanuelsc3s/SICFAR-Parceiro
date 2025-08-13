@@ -1,4 +1,5 @@
 import { Cake, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +18,7 @@ const birthdayData: BirthdayPerson[] = [
 ];
 
 const BirthdayCard = () => {
+  const navigate = useNavigate();
   return (
     <Card className="tile-card">
       <CardHeader className="pb-3">
@@ -46,7 +48,10 @@ const BirthdayCard = () => {
         ))}
         
         <div className="pt-2 border-t border-border/50">
-          <button className="w-full text-sm text-primary hover:text-primary-700 transition-colors flex items-center justify-center space-x-1">
+          <button 
+            className="w-full text-sm text-primary hover:text-primary-700 transition-colors flex items-center justify-center space-x-1"
+            onClick={() => navigate('/aniversariantes')}
+          >
             <Users className="h-4 w-4" />
             <span>Ver todos aniversariantes</span>
           </button>

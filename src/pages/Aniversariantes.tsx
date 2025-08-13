@@ -1,0 +1,161 @@
+import { ArrowLeft, Cake, Users, Calendar, Gift } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
+import Header from "@/components/Header";
+
+interface BirthdayPerson {
+  name: string;
+  department: string;
+  date: string;
+  fullDate: string;
+  avatar?: string;
+  age?: number;
+}
+
+const allBirthdayData: BirthdayPerson[] = [
+  { name: "Carlos Santos", department: "TI", date: "15/08", fullDate: "15 de Agosto", avatar: "", age: 32 },
+  { name: "Maria João", department: "Marketing", date: "22/08", fullDate: "22 de Agosto", avatar: "", age: 28 },
+  { name: "Pedro Costa", department: "Vendas", date: "28/08", fullDate: "28 de Agosto", avatar: "", age: 35 },
+  { name: "Ana Silva", department: "RH", date: "05/09", fullDate: "05 de Setembro", avatar: "", age: 29 },
+  { name: "João Pereira", department: "Financeiro", date: "12/09", fullDate: "12 de Setembro", avatar: "", age: 41 },
+  { name: "Sandra Oliveira", department: "Operações", date: "18/09", fullDate: "18 de Setembro", avatar: "", age: 26 },
+  { name: "Ricardo Ferreira", department: "TI", date: "25/09", fullDate: "25 de Setembro", avatar: "", age: 33 },
+  { name: "Patrícia Lima", department: "Marketing", date: "02/10", fullDate: "02 de Outubro", avatar: "", age: 30 },
+];
+
+const Aniversariantes = () => {
+  const navigate = useNavigate();
+
+  const currentMonth = allBirthdayData.filter(person => 
+    person.date.includes("/08") || person.date.includes("/09")
+  );
+
+  const upcomingBirthdays = allBirthdayData.filter(person => 
+    person.date.includes("/10")
+  );
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <main className="container mx-auto px-6 py-8">
+        {/* Header Section */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-4">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => navigate("/")}
+              className="h-10 w-10"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground flex items-center">
+                <Cake className="h-8 w-8 text-primary mr-3" />
+                Aniversariantes
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Celebre com nossos colaboradores em seus dias especiais
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            <Badge variant="secondary" className="text-lg px-4 py-2">
+              <Users className="h-4 w-4 mr-2" />
+              {allBirthdayData.length} colaboradores
+            </Badge>
+          </div>
+        </div>
+
+        <div className="grid gap-8">
+          {/* Current Month Birthdays */}
+          <Card className="tile-card">
+            <CardHeader>
+              <CardTitle className="flex items-center text-xl">
+                <Calendar className="h-6 w-6 text-primary mr-3" />
+                Aniversários deste mês
+                <Badge variant="default" className="ml-auto">
+                  {currentMonth.length}
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {currentMonth.map((person, index) => (
+                  <div key={index} className="flex items-center space-x-4 p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors border border-border/50">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={person.avatar} />
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {person.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-base truncate">{person.name}</p>
+                      <p className="text-sm text-muted-foreground">{person.department}</p>
+                      <div className="flex items-center mt-1">
+                        <Gift className="h-3 w-3 text-primary mr-1" />
+                        <span className="text-xs text-primary font-medium">{person.fullDate}</span>
+                        {person.age && (
+                          <span className="text-xs text-muted-foreground ml-2">
+                            ({person.age} anos)
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Upcoming Birthdays */}
+          <Card className="tile-card">
+            <CardHeader>
+              <CardTitle className="flex items-center text-xl">
+                <Calendar className="h-6 w-6 text-secondary mr-3" />
+                Próximos aniversários
+                <Badge variant="outline" className="ml-auto">
+                  {upcomingBirthdays.length}
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {upcomingBirthdays.map((person, index) => (
+                  <div key={index} className="flex items-center space-x-4 p-4 rounded-lg bg-card hover:bg-muted/30 transition-colors border border-border/50">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={person.avatar} />
+                      <AvatarFallback className="bg-secondary/10 text-secondary">
+                        {person.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-base truncate">{person.name}</p>
+                      <p className="text-sm text-muted-foreground">{person.department}</p>
+                      <div className="flex items-center mt-1">
+                        <Gift className="h-3 w-3 text-secondary mr-1" />
+                        <span className="text-xs text-secondary font-medium">{person.fullDate}</span>
+                        {person.age && (
+                          <span className="text-xs text-muted-foreground ml-2">
+                            ({person.age} anos)
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default Aniversariantes;
