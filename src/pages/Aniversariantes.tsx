@@ -1,9 +1,12 @@
-import { ArrowLeft, Cake, Users, Calendar, Gift } from "lucide-react";
+import { ArrowLeft, Cake, Users, Calendar, Gift, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
+import { useState, useMemo } from "react";
 import Header from "@/components/Header";
 
 interface BirthdayPerson {
@@ -28,12 +31,56 @@ const allBirthdayData: BirthdayPerson[] = [
 
 const Aniversariantes = () => {
   const navigate = useNavigate();
+  
+  // Filter states
+  const [nameFilter, setNameFilter] = useState("");
+  const [departmentFilter, setDepartmentFilter] = useState("");
+  const [dayFilter, setDayFilter] = useState("");
+  const [monthFilter, setMonthFilter] = useState("");
 
-  const currentMonth = allBirthdayData.filter(person => 
+  // Generate day and month options
+  const dayOptions = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'));
+  const monthOptions = [
+    { value: "01", label: "Janeiro" },
+    { value: "02", label: "Fevereiro" },
+    { value: "03", label: "Março" },
+    { value: "04", label: "Abril" },
+    { value: "05", label: "Maio" },
+    { value: "06", label: "Junho" },
+    { value: "07", label: "Julho" },
+    { value: "08", label: "Agosto" },
+    { value: "09", label: "Setembro" },
+    { value: "10", label: "Outubro" },
+    { value: "11", label: "Novembro" },
+    { value: "12", label: "Dezembro" }
+  ];
+
+  // Get unique departments
+  const departments = [...new Set(allBirthdayData.map(person => person.department))];
+
+  // Filter data based on search criteria
+  const filteredData = useMemo(() => {
+    return allBirthdayData.filter(person => {
+      const matchesName = person.name.toLowerCase().includes(nameFilter.toLowerCase());
+      const matchesDepartment = !departmentFilter || person.department === departmentFilter;
+      
+      let matchesDate = true;
+      if (dayFilter || monthFilter) {
+        const [day, month] = person.date.split('/');
+        const matchesDay = !dayFilter || day === dayFilter;
+        const matchesMonth = !monthFilter || month === monthFilter;
+        matchesDate = matchesDay && matchesMonth;
+      }
+      
+      return matchesName && matchesDepartment && matchesDate;
+    });
+  }, [nameFilter, departmentFilter, dayFilter, monthFilter]);
+
+  const currentMonth = filteredData.filter(person => 
     person.date.includes("/08") || person.date.includes("/09")
   );
 
-  const upcomingBirthdays = allBirthdayData.filter(person => 
+  const upcomingBirthdays = filteredData.filter(person => 
     person.date.includes("/10")
   );
 
@@ -67,10 +114,98 @@ const Aniversariantes = () => {
           <div className="flex items-center space-x-4">
             <Badge variant="secondary" className="text-lg px-4 py-2">
               <Users className="h-4 w-4 mr-2" />
-              {allBirthdayData.length} colaboradores
+              {filteredData.length} colaboradores
             </Badge>
           </div>
         </div>
+
+        {/* Filters Section */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center text-lg">
+              <Filter className="h-5 w-5 text-primary mr-2" />
+              Filtros
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Nome</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input 
+                    placeholder="Buscar por nome..." 
+                    value={nameFilter}
+                    onChange={(e) => setNameFilter(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Departamento</label>
+                <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todos os departamentos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Todos os departamentos</SelectItem>
+                    {departments.map(dept => (
+                      <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Dia</label>
+                <Select value={dayFilter} onValueChange={setDayFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecionar dia" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Todos os dias</SelectItem>
+                    {dayOptions.map(day => (
+                      <SelectItem key={day} value={day}>{day}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Mês</label>
+                <Select value={monthFilter} onValueChange={setMonthFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecionar mês" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Todos os meses</SelectItem>
+                    {monthOptions.map(month => (
+                      <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            {(nameFilter || departmentFilter || dayFilter || monthFilter) && (
+              <div className="mt-4 flex justify-end">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    setNameFilter("");
+                    setDepartmentFilter("");
+                    setDayFilter("");
+                    setMonthFilter("");
+                  }}
+                >
+                  Limpar filtros
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         <div className="grid gap-8">
           {/* Current Month Birthdays */}
