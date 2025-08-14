@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import Header from "@/components/Header";
-import { ArrowLeft, Send, Bot, User, Settings } from "lucide-react";
+import { ArrowLeft, Send, Bot, User, Settings, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 interface Message {
@@ -20,12 +21,22 @@ export default function ChatLisAI() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isRetrying, setIsRetrying] = useState(false);
+  const [showRetryModal, setShowRetryModal] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [trainingData, setTrainingData] = useState("");
+  const [pendingMessage, setPendingMessage] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeout quando componente desmonta
+  useEffect(() => {
+    return () => {
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Carrega configurações do localStorage e gera saudação inicial
   useEffect(() => {
@@ -135,7 +146,7 @@ export default function ChatLisAI() {
     scrollToBottom();
   }, [messages, isLoading]);
 
-  const sendMessageWithRetry = async (messageContent: string, isRetry = false) => {
+  const sendMessageWithRetry = async (messageContent: string) => {
     if (!apiKey) {
       toast.error("Configure sua API key da OpenAI nas configurações");
       return;
@@ -180,25 +191,100 @@ export default function ChatLisAI() {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-      setIsRetrying(false);
+      setShowRetryModal(false);
+      setIsLoading(false);
+      
+      // Foca no input após sucesso
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
       
-      if (!isRetry) {
+      if (!showRetryModal) {
         toast.error("Instabilidade na comunicação com o Servidor");
-        setIsRetrying(true);
+        setShowRetryModal(true);
+        setPendingMessage(messageContent);
+        setIsLoading(false);
         
-        // Tentar novamente após 5 segundos
-        retryTimeoutRef.current = setTimeout(() => {
-          sendMessageWithRetry(messageContent, true);
-        }, 5000);
-      } else {
-        toast.error("Não foi possível estabelecer comunicação com o servidor");
-        setIsRetrying(false);
+        // Inicia tentativas contínuas
+        startRetryLoop(messageContent);
       }
-    } finally {
-      setIsLoading(false);
     }
+  };
+
+  const startRetryLoop = (messageContent: string) => {
+    const attemptRetry = async () => {
+      if (!showRetryModal) return;
+      
+      try {
+        const systemPrompt = trainingData 
+          ? `Você é a Lis, uma assistente virtual. Use as seguintes informações como base de conhecimento: ${trainingData}`
+          : "Você é a Lis, uma assistente virtual prestativa e amigável.";
+
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              ...messages.slice(-10).map(msg => ({
+                role: msg.type === 'user' ? 'user' : 'assistant',
+                content: msg.content
+              })),
+              { role: 'user', content: messageContent }
+            ],
+            max_tokens: 1000,
+            temperature: 0.7,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erro na API: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          type: "assistant",
+          content: data.choices[0].message.content,
+          timestamp: new Date()
+        };
+
+        setMessages(prev => [...prev, assistantMessage]);
+        setShowRetryModal(false);
+        
+        // Foca no input após sucesso
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 100);
+      } catch (error) {
+        // Se ainda está com modal aberto, tenta novamente em 3 segundos
+        if (showRetryModal) {
+          retryTimeoutRef.current = setTimeout(attemptRetry, 3000);
+        }
+      }
+    };
+
+    // Primeira tentativa em 3 segundos
+    retryTimeoutRef.current = setTimeout(attemptRetry, 3000);
+  };
+
+  const cancelRetry = () => {
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+    }
+    setShowRetryModal(false);
+    setPendingMessage("");
+    
+    // Foca no input após cancelar
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
   };
 
   const sendMessage = async () => {
@@ -293,7 +379,7 @@ export default function ChatLisAI() {
                 </div>
               ))}
               
-              {(isLoading || isRetrying) && (
+              {isLoading && (
                 <div className="flex gap-3">
                   <Avatar className="w-8 h-8">
                     <AvatarFallback className="bg-secondary">
@@ -301,15 +387,10 @@ export default function ChatLisAI() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="bg-muted text-foreground p-3 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                      </div>
-                      {isRetrying && (
-                        <span className="text-xs text-muted-foreground ml-2">Tentando novamente...</span>
-                      )}
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                     </div>
                   </div>
                 </div>
@@ -341,6 +422,35 @@ export default function ChatLisAI() {
         </Card>
         </div>
       </div>
+
+      {/* Modal de Retry */}
+      <Dialog open={showRetryModal} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-md">
+          <div className="flex flex-col items-center text-center p-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex gap-1">
+                <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '200ms' }}></div>
+                <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '400ms' }}></div>
+              </div>
+              <span className="text-lg font-medium">Tentando enviar mensagem...</span>
+            </div>
+            
+            <p className="text-muted-foreground mb-6">
+              Instabilidade na comunicação com o servidor. Tentando reenviar automaticamente.
+            </p>
+            
+            <Button 
+              variant="outline" 
+              onClick={cancelRetry}
+              className="flex items-center gap-2"
+            >
+              <X className="w-4 h-4" />
+              Cancelar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
