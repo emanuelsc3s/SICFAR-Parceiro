@@ -5,7 +5,15 @@ import { Button } from "@/components/ui/button";
 
 const SolicitarBeneficio = () => {
   const [activeButton, setActiveButton] = useState("Solicitar Voucher");
-  const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
+  const [selectedPrograms, setSelectedPrograms] = useState<string[]>([]);
+
+  const handleProgramSelection = (programTitle: string) => {
+    setSelectedPrograms(prev => 
+      prev.includes(programTitle) 
+        ? prev.filter(p => p !== programTitle)
+        : [...prev, programTitle]
+    );
+  };
 
   const navigationButtons = [
     { name: "Início", icon: Home },
@@ -128,11 +136,11 @@ const SolicitarBeneficio = () => {
                 <Card 
                   key={index} 
                   className={`border cursor-pointer transition-all ${
-                    selectedProgram === programa.title 
+                    selectedPrograms.includes(programa.title) 
                       ? 'border-blue-600 bg-blue-50' 
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
-                  onClick={() => setSelectedProgram(programa.title)}
+                  onClick={() => handleProgramSelection(programa.title)}
                 >
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -147,14 +155,16 @@ const SolicitarBeneficio = () => {
                         </div>
                       </div>
                       <div 
-                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                          selectedProgram === programa.title 
-                            ? 'border-blue-600 bg-blue-600' 
-                            : 'border-gray-300'
+                        className={`w-6 h-6 border-2 flex items-center justify-center ${
+                          selectedPrograms.includes(programa.title) 
+                            ? 'border-blue-600 bg-blue-600 rounded-sm' 
+                            : 'border-gray-300 rounded-sm'
                         }`}
                       >
-                        {selectedProgram === programa.title && (
-                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        {selectedPrograms.includes(programa.title) && (
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
                         )}
                       </div>
                     </div>
@@ -176,7 +186,7 @@ const SolicitarBeneficio = () => {
               backgroundColor: "#1E3A8A"
             }}
             className="text-white hover:opacity-90 flex items-center space-x-2"
-            disabled={!selectedProgram}
+            disabled={selectedPrograms.length === 0}
           >
             <span>Próximo</span>
             <ArrowRight className="w-4 h-4" />
