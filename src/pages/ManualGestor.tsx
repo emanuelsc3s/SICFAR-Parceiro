@@ -1,86 +1,330 @@
-import { ArrowLeft, BookOpen, Download, Share2, Search, ChevronRight, FileText, Users, Target, TrendingUp, Shield, Award, Clock, CheckCircle } from "lucide-react";
+import { ArrowLeft, BookOpen, Download, Share2, Search, Users, Clock, Calendar, Shield, AlertTriangle, FileText, Home, CheckCircle2, Phone, Building2, Heart, Briefcase, Scale, UserCheck, Timer, Gavel, LogOut, FileCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Header from "@/components/Header";
 
 const ManualGestor = () => {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [activeSection, setActiveSection] = useState("sumario");
 
-  const chapters = [
-    {
-      id: 1,
-      title: "Introdução à Gestão",
-      icon: BookOpen,
-      duration: "15 min",
-      completed: true,
-      summary: "Fundamentos essenciais da liderança e gestão de equipes",
-      topics: ["Perfil do gestor moderno", "Competências fundamentais", "Responsabilidades e expectativas"]
-    },
-    {
-      id: 2,
-      title: "Gestão de Pessoas",
-      icon: Users,
-      duration: "25 min", 
-      completed: true,
-      summary: "Estratégias para liderar, motivar e desenvolver sua equipe",
-      topics: ["Recrutamento e seleção", "Feedback e avaliação", "Desenvolvimento de talentos", "Gestão de conflitos"]
-    },
-    {
-      id: 3,
-      title: "Planejamento e Metas",
-      icon: Target,
-      duration: "20 min",
-      completed: false,
-      summary: "Como definir objetivos claros e acompanhar resultados",
-      topics: ["Metodologia SMART", "KPIs e indicadores", "Planos de ação", "Monitoramento de progresso"]
-    },
-    {
-      id: 4,
-      title: "Performance e Resultados",
-      icon: TrendingUp,
-      duration: "30 min",
-      completed: false,
-      summary: "Otimização de processos e maximização de resultados",
-      topics: ["Análise de performance", "Melhoria contínua", "Gestão por resultados", "ROI e produtividade"]
-    },
-    {
-      id: 5,
-      title: "Compliance e Ética",
-      icon: Shield,
-      duration: "18 min",
-      completed: false,
-      summary: "Normas, regulamentações e conduta profissional",
-      topics: ["Código de ética", "Políticas internas", "Conformidade legal", "Responsabilidade social"]
-    },
-    {
-      id: 6,
-      title: "Liderança Avançada",
-      icon: Award,
-      duration: "35 min",
-      completed: false,
-      summary: "Técnicas avançadas de liderança e influência",
-      topics: ["Liderança situacional", "Comunicação assertiva", "Tomada de decisão", "Gestão de mudanças"]
-    }
-  ];
+  const manualData = {
+    titulo: "Manual Básico de Gestão de Pessoas",
+    empresa: "Farmace",
+    slogan: "Compromisso com a saúde!",
+    data: "Setembro/2024",
+    versao: "1.0",
+    secoes: [
+      {
+        id: "introducao",
+        titulo: "Introdução",
+        icone: "📘",
+        numero: 1,
+        cor: "from-blue-500 to-blue-600"
+      },
+      {
+        id: "processo_selecao",
+        titulo: "Processo de Seleção",
+        icone: "🔍",
+        numero: 2,
+        cor: "from-orange-500 to-orange-600"
+      },
+      {
+        id: "processo_contratacao",
+        titulo: "Processo de Contratação",
+        icone: "✍️",
+        numero: 3,
+        cor: "from-purple-500 to-purple-600"
+      },
+      {
+        id: "avaliacao_experiencia",
+        titulo: "Avaliação de Experiência",
+        icone: "📊",
+        numero: 4,
+        cor: "from-green-500 to-green-600"
+      },
+      {
+        id: "jornada_trabalho",
+        titulo: "Jornada de Trabalho",
+        icone: "⏰",
+        numero: 5,
+        cor: "from-red-500 to-red-600"
+      },
+      {
+        id: "faltas",
+        titulo: "Faltas",
+        icone: "📅",
+        numero: 6,
+        cor: "from-indigo-500 to-indigo-600"
+      },
+      {
+        id: "afastamento",
+        titulo: "Afastamento",
+        icone: "🏥",
+        numero: 7,
+        cor: "from-pink-500 to-pink-600"
+      },
+      {
+        id: "horas_extras",
+        titulo: "Horas Extras e Ponto",
+        icone: "⏱️",
+        numero: 8,
+        cor: "from-teal-500 to-teal-600"
+      },
+      {
+        id: "licencas",
+        titulo: "Licenças",
+        icone: "👶",
+        numero: 9,
+        cor: "from-amber-500 to-amber-600"
+      },
+      {
+        id: "ferias",
+        titulo: "Férias",
+        icone: "🏖️",
+        numero: 10,
+        cor: "from-cyan-500 to-cyan-600"
+      },
+      {
+        id: "medidas_disciplinares",
+        titulo: "Medidas Disciplinares",
+        icone: "⚖️",
+        numero: 11,
+        cor: "from-violet-500 to-violet-600"
+      },
+      {
+        id: "desligamento",
+        titulo: "Processo de Desligamento",
+        icone: "🚪",
+        numero: 12,
+        cor: "from-rose-500 to-rose-600"
+      },
+      {
+        id: "normas_gerais",
+        titulo: "Normas Gerais",
+        icone: "📋",
+        numero: 13,
+        cor: "from-emerald-500 to-emerald-600"
+      }
+    ]
+  };
 
-  const filteredChapters = chapters.filter(chapter =>
-    chapter.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    chapter.summary.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    chapter.topics.some(topic => topic.toLowerCase().includes(searchTerm.toLowerCase()))
+  const renderSumario = () => (
+    <div className="space-y-8">
+      {/* Header com logo e info */}
+      <div className="text-center mb-12">
+        <div className="flex items-center justify-center mb-6">
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+            {manualData.empresa.charAt(0)}
+          </div>
+        </div>
+        <h1 className="text-4xl font-bold text-foreground mb-2">{manualData.titulo}</h1>
+        <p className="text-xl text-primary mb-2">{manualData.empresa}</p>
+        <p className="text-lg text-muted-foreground italic">{manualData.slogan}</p>
+        <div className="flex items-center justify-center space-x-4 mt-4 text-sm text-muted-foreground">
+          <span>{manualData.data}</span>
+          <span>•</span>
+          <span>Versão {manualData.versao}</span>
+        </div>
+      </div>
+
+      {/* Sumário */}
+      <Card className="p-8">
+        <h2 className="text-3xl font-bold mb-8 text-center">SUMÁRIO</h2>
+        <div className="grid gap-4">
+          {manualData.secoes.map((secao) => (
+            <div 
+              key={secao.id}
+              onClick={() => setActiveSection(secao.id)}
+              className="flex items-center justify-between p-4 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors group"
+            >
+              <div className="flex items-center space-x-6">
+                <div className={`w-16 h-16 bg-gradient-to-br ${secao.cor} rounded-lg flex items-center justify-center text-white text-2xl font-bold shadow-lg`}>
+                  {secao.numero}
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+                    {secao.titulo}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {secao.icone} Seção {secao.numero}
+                  </p>
+                </div>
+              </div>
+              <div className="w-8 h-[2px] bg-muted-foreground/30"></div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
   );
 
-  const totalDuration = chapters.reduce((acc, chapter) => {
-    const minutes = parseInt(chapter.duration.split(' ')[0]);
-    return acc + minutes;
-  }, 0);
+  const renderIntroducao = () => (
+    <div className="space-y-8">
+      <div className="text-center mb-8">
+        <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-4xl font-bold mx-auto mb-6">
+          1
+        </div>
+        <h1 className="text-4xl font-bold text-foreground mb-4">INTRODUÇÃO</h1>
+        <div className="text-2xl">📘</div>
+      </div>
 
-  const completedChapters = chapters.filter(chapter => chapter.completed).length;
-  const progressPercentage = (completedChapters / chapters.length) * 100;
+      <Card className="p-8">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h3 className="text-2xl font-bold text-foreground mb-4">Bem-vindo ao Manual de Gestão!</h3>
+            <p className="text-muted-foreground text-lg leading-relaxed mb-6">
+              Este manual visa propiciar aos gestores da Farmace informações básicas sobre as formas de condução das relações trabalhistas com os empregados dos seus respectivos setores.
+            </p>
+            <p className="text-muted-foreground text-lg leading-relaxed">
+              Este manual é uma ferramenta essencial para garantir que todos os processos de gestão de pessoas sejam conduzidos de forma padronizada, legal e eficiente em toda a empresa.
+            </p>
+          </div>
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg">
+            <h4 className="text-lg font-semibold text-foreground mb-4">Como usar este manual:</h4>
+            <ul className="space-y-3">
+              <li className="flex items-start">
+                <CheckCircle2 className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                <span className="text-muted-foreground">Navegue pelos tópicos usando o menu lateral</span>
+              </li>
+              <li className="flex items-start">
+                <CheckCircle2 className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                <span className="text-muted-foreground">Cada seção contém fluxogramas e procedimentos detalhados</span>
+              </li>
+              <li className="flex items-start">
+                <CheckCircle2 className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                <span className="text-muted-foreground">Os anexos mencionados devem ser solicitados ao RH</span>
+              </li>
+              <li className="flex items-start">
+                <CheckCircle2 className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                <span className="text-muted-foreground">Em caso de dúvidas, consulte sempre o departamento de RH</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+
+  const renderSecao = (secaoId: string) => {
+    const secao = manualData.secoes.find(s => s.id === secaoId);
+    if (!secao) return null;
+
+    // Conteúdo completo baseado no JSON fornecido
+    const conteudoCompleto: { [key: string]: any } = {
+      processo_selecao: {
+        descricao: "Todos os processos seletivos devem ser abertos seguindo os fluxos estabelecidos e serão conduzidos pela equipe do RH junto aos gestores.",
+        portal: "www.farmace.com.br - ícone Trabalhe Conosco",
+        tipos: [
+          {
+            titulo: "Vagas de Aumento de Quadro",
+            fluxo: [
+              "Autorização por escrito, assinada pelo gestor, Horaci e Dr. Salviano (Anexo A)",
+              "Alinhamento de perfil",
+              "Processo seletivo",
+              "Entrevista com o gestor",
+              "Fechamento do salário com Dr. Salviano",
+              "Fechamento da contratação"
+            ]
+          },
+          {
+            titulo: "Vagas de Substituição",
+            fluxo: [
+              "Autorização por escrito, assinada pelo gestor e Horaci (Anexo A)",
+              "Alinhamento de perfil",
+              "Processo seletivo",
+              "Entrevista com o gestor",
+              "Fechamento do salário com Dr. Salviano",
+              "Fechamento da contratação"
+            ]
+          }
+        ]
+      }
+    };
+
+    return (
+      <div className="space-y-8">
+        <div className="text-center mb-8">
+          <div className={`w-24 h-24 bg-gradient-to-br ${secao.cor} rounded-full flex items-center justify-center text-white text-4xl font-bold mx-auto mb-6`}>
+            {secao.numero}
+          </div>
+          <h1 className="text-4xl font-bold text-foreground mb-4">{secao.titulo.toUpperCase()}</h1>
+          <div className="text-2xl">{secao.icone}</div>
+        </div>
+
+        {/* Conteúdo da seção baseado no JSON */}
+        {secaoId === "processo_selecao" && (
+          <div className="space-y-6">
+            <Card className="p-6">
+              <p className="text-lg text-muted-foreground mb-4">
+                Todos os processos seletivos devem ser abertos seguindo os fluxos estabelecidos e serão conduzidos pela equipe do RH junto aos gestores.
+              </p>
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h4 className="font-semibold text-primary mb-2">Portal de Candidaturas:</h4>
+                <p className="text-muted-foreground">www.farmace.com.br - ícone Trabalhe Conosco</p>
+              </div>
+            </Card>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card className="p-6">
+                <h3 className="text-xl font-bold text-foreground mb-4 flex items-center">
+                  <Users className="h-6 w-6 text-green-600 mr-2" />
+                  Vagas de Aumento de Quadro
+                </h3>
+                <ol className="space-y-3">
+                  {[
+                    "Autorização por escrito, assinada pelo gestor, Horaci e Dr. Salviano (Anexo A)",
+                    "Alinhamento de perfil",
+                    "Processo seletivo",
+                    "Entrevista com o gestor",
+                    "Fechamento do salário com Dr. Salviano",
+                    "Fechamento da contratação"
+                  ].map((item, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="bg-green-100 text-green-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 flex-shrink-0">
+                        {index + 1}
+                      </span>
+                      <span className="text-muted-foreground">{item}</span>
+                    </li>
+                  ))}
+                </ol>
+              </Card>
+
+              <Card className="p-6">
+                <h3 className="text-xl font-bold text-foreground mb-4 flex items-center">
+                  <UserCheck className="h-6 w-6 text-blue-600 mr-2" />
+                  Vagas de Substituição
+                </h3>
+                <ol className="space-y-3">
+                  {[
+                    "Autorização por escrito, assinada pelo gestor e Horaci (Anexo A)",
+                    "Alinhamento de perfil",
+                    "Processo seletivo",
+                    "Entrevista com o gestor",
+                    "Fechamento do salário com Dr. Salviano",
+                    "Fechamento da contratação"
+                  ].map((item, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="bg-blue-100 text-blue-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 flex-shrink-0">
+                        {index + 1}
+                      </span>
+                      <span className="text-muted-foreground">{item}</span>
+                    </li>
+                  ))}
+                </ol>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {/* Adicione mais seções aqui conforme necessário */}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -104,7 +348,7 @@ const ManualGestor = () => {
                 Manual do Gestor
               </h1>
               <p className="text-muted-foreground mt-1">
-                Guia completo para excelência em gestão e liderança
+                {manualData.titulo} - {manualData.empresa}
               </p>
             </div>
           </div>
@@ -121,127 +365,33 @@ const ManualGestor = () => {
           </div>
         </div>
 
-        {/* Progress Overview */}
-        <Card className="mb-8 hero-gradient text-white">
-          <CardContent className="p-6">
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold mb-2">{completedChapters}/{chapters.length}</div>
-                <div className="text-white/80">Capítulos Concluídos</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold mb-2">{Math.round(progressPercentage)}%</div>
-                <div className="text-white/80">Progresso Total</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold mb-2">{totalDuration}min</div>
-                <div className="text-white/80">Tempo Total</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Search Bar */}
-        <Card className="mb-8">
-          <CardContent className="p-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input 
-                placeholder="Buscar por tópicos, capítulos ou conteúdo..." 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Chapters Grid */}
-        <div className="grid gap-6">
-          {filteredChapters.map((chapter, index) => (
-            <Card key={chapter.id} className="tile-card group">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start space-x-4 flex-1">
-                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                      chapter.completed ? 'bg-green-100 text-green-600' : 'bg-primary/10 text-primary'
-                    }`}>
-                      {chapter.completed ? (
-                        <CheckCircle className="h-6 w-6" />
-                      ) : (
-                        <chapter.icon className="h-6 w-6" />
-                      )}
-                    </div>
-                    
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="text-xl font-semibold text-foreground">
-                          Capítulo {chapter.id}: {chapter.title}
-                        </h3>
-                        <Badge variant={chapter.completed ? "default" : "secondary"}>
-                          <Clock className="h-3 w-3 mr-1" />
-                          {chapter.duration}
-                        </Badge>
-                        {chapter.completed && (
-                          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                            Concluído
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      <p className="text-muted-foreground mb-4">
-                        {chapter.summary}
-                      </p>
-                      
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-medium text-foreground">Tópicos abordados:</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {chapter.topics.map((topic, topicIndex) => (
-                            <Badge key={topicIndex} variant="outline" className="text-xs">
-                              {topic}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    variant={chapter.completed ? "default" : "outline"}
-                    className="ml-4 group-hover:scale-105 transition-transform"
-                  >
-                    <FileText className="h-4 w-4 mr-2" />
-                    {chapter.completed ? "Revisar" : "Começar"}
-                    <ChevronRight className="h-4 w-4 ml-2" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+        {/* Navigation Pills */}
+        <div className="flex flex-wrap gap-2 mb-8">
+          <Button
+            variant={activeSection === "sumario" ? "default" : "outline"}
+            onClick={() => setActiveSection("sumario")}
+            size="sm"
+          >
+            <Home className="h-4 w-4 mr-2" />
+            Sumário
+          </Button>
+          {manualData.secoes.map((secao) => (
+            <Button
+              key={secao.id}
+              variant={activeSection === secao.id ? "default" : "outline"}
+              onClick={() => setActiveSection(secao.id)}
+              size="sm"
+            >
+              <span className="mr-2">{secao.icone}</span>
+              {secao.titulo}
+            </Button>
           ))}
         </div>
 
-        {/* Footer Info */}
-        <Card className="mt-8">
-          <CardContent className="p-6 text-center">
-            <div className="flex items-center justify-center space-x-6 text-sm text-muted-foreground">
-              <div className="flex items-center">
-                <BookOpen className="h-4 w-4 mr-2" />
-                6 Capítulos
-              </div>
-              <div className="flex items-center">
-                <Clock className="h-4 w-4 mr-2" />
-                {totalDuration} minutos
-              </div>
-              <div className="flex items-center">
-                <Users className="h-4 w-4 mr-2" />
-                Para todos os gestores
-              </div>
-            </div>
-            <p className="mt-4 text-muted-foreground">
-              Este manual é atualizado regularmente com as melhores práticas em gestão e liderança.
-            </p>
-          </CardContent>
-        </Card>
+        {/* Content */}
+        {activeSection === "sumario" && renderSumario()}
+        {activeSection === "introducao" && renderIntroducao()}
+        {activeSection !== "sumario" && activeSection !== "introducao" && renderSecao(activeSection)}
       </main>
     </div>
   );
