@@ -337,29 +337,128 @@ const SolicitarBeneficio = () => {
           </div>
         )}
 
-        {/* Step 3: Placeholder for future implementation */}
+        {/* Step 3: Revisar e Confirmar */}
         {currentStep === 3 && (
-          <div className="bg-white rounded-lg border border-gray-200 p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">Revisar e Confirmar</h2>
-            <p className="text-gray-600 mb-8">Esta etapa será implementada em breve.</p>
-            
-            <div className="flex items-center justify-between">
-              <Button 
-                variant="ghost" 
-                onClick={handlePrevStep}
-                className="flex items-center text-gray-600 hover:text-gray-800"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Anterior
-              </Button>
-              
-              <Button 
-                className="flex items-center text-white"
-                style={{ backgroundColor: "#1E3A8A" }}
-              >
-                Confirmar Solicitação
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
+          <div className="space-y-6">
+            {/* Header Card - Fatura Style */}
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-6 text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold mb-2">Resumo da Solicitação</h2>
+                  <p className="text-blue-100">Olá! Sua solicitação está quase pronta!</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-blue-100 text-sm">Data da solicitação</p>
+                  <p className="font-semibold">{new Date().toLocaleDateString('pt-BR')}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Summary Card */}
+            <div className="bg-white rounded-lg border-2 border-blue-200 p-8">
+              <div className="grid md:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Benefícios Solicitados</h3>
+                  <div className="space-y-3">
+                    {selectedBeneficios.map(beneficioId => {
+                      const beneficio = beneficios.find(b => b.id === beneficioId);
+                      if (!beneficio) return null;
+                      const IconComponent = beneficio.icon;
+                      return (
+                        <div key={beneficioId} className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                            <IconComponent className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-semibold text-gray-900">{beneficio.title}</p>
+                            <p className="text-sm text-blue-600">{beneficio.value}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-sm text-gray-600 mb-1">Total de benefícios</p>
+                    <p className="text-3xl font-bold text-gray-900">{selectedBeneficios.length}</p>
+                    <p className="text-sm text-gray-500">itens selecionados</p>
+                  </div>
+                  
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div className="w-4 h-4 bg-blue-600 rounded-full"></div>
+                      <p className="text-sm font-medium text-gray-900">Status da solicitação</p>
+                    </div>
+                    <p className="text-sm text-gray-600">Aguardando confirmação</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Form Data Summary */}
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <h4 className="font-semibold text-gray-900 mb-4">Detalhes da Solicitação</h4>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-2">Justificativa:</p>
+                    <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                      {formData.justificativa || "Não informado"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-2">Urgência:</p>
+                    <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                      {formData.urgencia || "Normal"}
+                    </p>
+                  </div>
+                </div>
+                {formData.informacoesAdicionais && (
+                  <div className="mt-4">
+                    <p className="text-sm font-medium text-gray-700 mb-2">Informações Adicionais:</p>
+                    <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                      {formData.informacoesAdicionais}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <Button 
+                  variant="ghost" 
+                  onClick={handlePrevStep}
+                  className="flex items-center text-gray-600 hover:text-gray-800"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Voltar e Editar
+                </Button>
+                
+                <div className="flex space-x-3">
+                  <Button 
+                    variant="outline"
+                    onClick={() => navigate('/portalbeneficio')}
+                    className="flex items-center"
+                  >
+                    Cancelar
+                  </Button>
+                  
+                  <Button 
+                    className="flex items-center text-white px-8"
+                    style={{ backgroundColor: "#1E3A8A" }}
+                    onClick={() => {
+                      // Aqui seria implementada a lógica de envio
+                      alert("Solicitação confirmada com sucesso!");
+                      navigate('/portalbeneficio');
+                    }}
+                  >
+                    Confirmar Solicitação
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         )}
