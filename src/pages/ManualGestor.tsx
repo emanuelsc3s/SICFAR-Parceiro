@@ -366,7 +366,7 @@ const ManualGestor = () => {
         </div>
 
         {/* Navigation Pills */}
-        <div className="flex flex-wrap gap-3 mb-12 p-1 bg-muted/30 rounded-lg">
+        <div className="flex flex-wrap gap-3 mb-1 p-1 bg-muted/30 rounded-lg">
           <Button variant={activeSection === "sumario" ? "default" : "ghost"} onClick={() => setActiveSection("sumario")} size="sm" className="h-9">
             <Home className="h-4 w-4 mr-2" />
             Sumário
