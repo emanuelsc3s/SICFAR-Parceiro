@@ -26,6 +26,7 @@ export default function ChatLisAI() {
   const [trainingData, setTrainingData] = useState("");
   const [retryCount, setRetryCount] = useState(0);
   const [lastMessageTime, setLastMessageTime] = useState(0);
+  const [isSending, setIsSending] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -311,12 +312,12 @@ export default function ChatLisAI() {
   };
 
   const sendMessage = async () => {
-    if (!inputMessage.trim()) return;
+    if (!inputMessage.trim() || isSending || isLoading || showRetryModal) return;
     
-    // Controle de spam - mínimo 2 segundos entre mensagens
+    // Controle de spam - mínimo 5 segundos entre mensagens para evitar rate limit
     const now = Date.now();
     const timeSinceLastMessage = now - lastMessageTime;
-    const minimumDelay = 2000; // 2 segundos
+    const minimumDelay = 5000; // 5 segundos
     
     if (timeSinceLastMessage < minimumDelay) {
       const remainingTime = Math.ceil((minimumDelay - timeSinceLastMessage) / 1000);
@@ -324,6 +325,7 @@ export default function ChatLisAI() {
       return;
     }
     
+    setIsSending(true);
     setLastMessageTime(now);
     
     const userMessage: Message = {
@@ -338,7 +340,11 @@ export default function ChatLisAI() {
     setInputMessage("");
     setIsLoading(true);
 
-    await sendMessageWithRetry(messageContent);
+    try {
+      await sendMessageWithRetry(messageContent);
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -438,12 +444,12 @@ export default function ChatLisAI() {
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Digite sua mensagem para a Lis..."
-                  disabled={isLoading}
+                  disabled={isLoading || isSending || showRetryModal}
                   className="flex-1"
                 />
                 <Button 
                   onClick={sendMessage}
-                  disabled={isLoading || !inputMessage.trim()}
+                  disabled={isLoading || isSending || showRetryModal || !inputMessage.trim()}
                   size="icon"
                 >
                   <Send className="w-4 h-4" />
