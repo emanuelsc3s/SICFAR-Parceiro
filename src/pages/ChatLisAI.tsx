@@ -23,6 +23,7 @@ export default function ChatLisAI() {
   const [apiKey, setApiKey] = useState("");
   const [trainingData, setTrainingData] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Carrega configurações do localStorage
   useEffect(() => {
@@ -42,7 +43,7 @@ export default function ChatLisAI() {
     setMessages([initialMessage]);
   }, []);
 
-  // Auto scroll para última mensagem
+  // Auto scroll para última mensagem e foco no input
   useEffect(() => {
     const scrollToBottom = () => {
       console.log('Tentando fazer scroll...', scrollAreaRef.current);
@@ -76,6 +77,13 @@ export default function ChatLisAI() {
             setTimeout(doScroll, 100);
             setTimeout(doScroll, 300);
             setTimeout(doScroll, 600);
+            
+            // Foca no input após o scroll (só se não estiver carregando)
+            if (!isLoading && inputRef.current) {
+              setTimeout(() => {
+                inputRef.current?.focus();
+              }, 700);
+            }
           });
         } else {
           console.log('ScrollContainer não encontrado');
@@ -86,7 +94,7 @@ export default function ChatLisAI() {
     };
 
     scrollToBottom();
-  }, [messages]);
+  }, [messages, isLoading]);
 
   const sendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -247,6 +255,7 @@ export default function ChatLisAI() {
           <div className="border-t border-border p-4">
             <div className="flex gap-2">
               <Input
+                ref={inputRef}
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
