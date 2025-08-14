@@ -328,7 +328,7 @@ const SolicitarBeneficio = () => {
               <Button 
                 onClick={handleNextStep}
                 className="flex items-center text-white"
-                style={{ backgroundColor: "#6B9EF0" }}
+                style={{ backgroundColor: "#1E3A8A" }}
               >
                 Próximo
                 <ArrowRight className="w-4 h-4 ml-2" />
