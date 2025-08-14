@@ -110,6 +110,27 @@ const SolicitarBeneficio = () => {
       </header>
 
       <div className="max-w-6xl mx-auto p-6">
+        {/* Hero Section */}
+        <div className="mb-8">
+          <div className="flex items-center mb-6">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/portalbeneficio')}
+              className="flex items-center text-gray-600 hover:text-gray-800 p-0 h-auto font-normal"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Voltar
+            </Button>
+          </div>
+          
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Solicitar Voucher
+          </h1>
+          <p className="text-gray-600 mb-8">
+            Siga os passos abaixo para solicitar um novo voucher
+          </p>
+        </div>
+
         {/* Steps Header */}
         <div className="flex items-center justify-center mb-8">
           {steps.map((step, index) => (
