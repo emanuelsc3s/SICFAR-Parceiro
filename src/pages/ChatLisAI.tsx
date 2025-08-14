@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 interface Message {
@@ -24,6 +24,7 @@ export default function ChatLisAI() {
   const [showRetryModal, setShowRetryModal] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [trainingData, setTrainingData] = useState("");
+  const [retryCount, setRetryCount] = useState(0);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -170,6 +171,11 @@ export default function ChatLisAI() {
         }),
       });
 
+      if (response.status === 429) {
+        // Rate limit - trata especificamente
+        throw new Error('RATE_LIMIT');
+      }
+
       if (!response.ok) {
         throw new Error(`Erro na API: ${response.status}`);
       }
@@ -184,6 +190,7 @@ export default function ChatLisAI() {
 
       setMessages(prev => [...prev, assistantMessage]);
       setShowRetryModal(false);
+      setRetryCount(0);
       setIsLoading(false);
       
       setTimeout(() => {
@@ -193,18 +200,36 @@ export default function ChatLisAI() {
       console.error('Erro ao enviar mensagem:', error);
       
       if (!showRetryModal) {
-        toast.error("Instabilidade na comunicação com o Servidor");
+        const isRateLimit = error instanceof Error && error.message === 'RATE_LIMIT';
+        
+        if (isRateLimit) {
+          toast.error("Muitas requisições. Aguardando liberação...");
+        } else {
+          toast.error("Instabilidade na comunicação com o Servidor");
+        }
+        
         setShowRetryModal(true);
+        setRetryCount(0);
         setIsLoading(false);
         
-        startRetryLoop(messageContent);
+        startRetryLoop(messageContent, isRateLimit);
       }
     }
   };
 
-  const startRetryLoop = (messageContent: string) => {
+  const startRetryLoop = (messageContent: string, isRateLimit = false) => {
+    const maxRetries = 5;
+    
     const attemptRetry = async () => {
-      if (!showRetryModal) return;
+      if (!showRetryModal || retryCount >= maxRetries) {
+        if (retryCount >= maxRetries) {
+          setShowRetryModal(false);
+          toast.error("Não foi possível enviar a mensagem após várias tentativas");
+        }
+        return;
+      }
+      
+      setRetryCount(prev => prev + 1);
       
       try {
         const systemPrompt = trainingData 
@@ -232,6 +257,10 @@ export default function ChatLisAI() {
           }),
         });
 
+        if (response.status === 429) {
+          throw new Error('RATE_LIMIT');
+        }
+
         if (!response.ok) {
           throw new Error(`Erro na API: ${response.status}`);
         }
@@ -246,18 +275,26 @@ export default function ChatLisAI() {
 
         setMessages(prev => [...prev, assistantMessage]);
         setShowRetryModal(false);
+        setRetryCount(0);
         
         setTimeout(() => {
           inputRef.current?.focus();
         }, 100);
       } catch (error) {
-        if (showRetryModal) {
-          retryTimeoutRef.current = setTimeout(attemptRetry, 3000);
+        if (showRetryModal && retryCount < maxRetries) {
+          // Backoff exponencial: 5s, 10s, 20s, 40s, 80s para rate limit
+          // 3s, 6s, 12s, 24s, 48s para outros erros
+          const baseDelay = isRateLimit ? 5000 : 3000;
+          const delay = baseDelay * Math.pow(2, retryCount - 1);
+          
+          retryTimeoutRef.current = setTimeout(attemptRetry, delay);
         }
       }
     };
 
-    retryTimeoutRef.current = setTimeout(attemptRetry, 3000);
+    // Primeira tentativa com delay baseado no tipo de erro
+    const initialDelay = isRateLimit ? 10000 : 3000; // 10s para rate limit, 3s para outros
+    retryTimeoutRef.current = setTimeout(attemptRetry, initialDelay);
   };
 
   const cancelRetry = () => {
@@ -265,6 +302,7 @@ export default function ChatLisAI() {
       clearTimeout(retryTimeoutRef.current);
     }
     setShowRetryModal(false);
+    setRetryCount(0);
     
     setTimeout(() => {
       inputRef.current?.focus();
@@ -404,6 +442,7 @@ export default function ChatLisAI() {
 
       <Dialog open={showRetryModal} onOpenChange={() => {}}>
         <DialogContent className="sm:max-w-md">
+          <DialogTitle className="sr-only">Tentando reenviar mensagem</DialogTitle>
           <div className="flex flex-col items-center text-center p-4">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex gap-1">
@@ -415,7 +454,10 @@ export default function ChatLisAI() {
             </div>
             
             <p className="text-muted-foreground mb-6">
-              Instabilidade na comunicação com o servidor. Tentando reenviar automaticamente.
+              {retryCount > 0 
+                ? `Tentativa ${retryCount} de 5. Aguardando liberação do servidor...`
+                : "Instabilidade na comunicação com o servidor. Tentando reenviar automaticamente."
+              }
             </p>
             
             <Button 
