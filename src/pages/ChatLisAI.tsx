@@ -190,7 +190,7 @@ export default function ChatLisAI() {
         <div className="flex-1 container mx-auto px-6 flex flex-col max-w-4xl">
         <Card className="flex-1 flex flex-col overflow-hidden">
           {/* Chat Messages */}
-          <ScrollArea className="flex-1 p-6">
+          <ScrollArea className="flex-1 p-6 mt-4">
             <div ref={scrollAreaRef} className="space-y-4">
               {messages.map((message) => (
                 <div
