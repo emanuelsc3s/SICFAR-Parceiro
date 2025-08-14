@@ -2,7 +2,20 @@ import { Gift, DollarSign, Clock, Utensils, Car, GraduationCap } from "lucide-re
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
 const PortalBeneficio = () => {
+  const [activeButton, setActiveButton] = useState("Início");
+
+  const navigationButtons = [
+    { name: "Início", icon: Gift },
+    { name: "Solicitar Voucher", icon: null },
+    { name: "Dashboard RH", icon: null },
+    { name: "Scanner Parceiro", icon: null },
+    { name: "Resgates", icon: null },
+    { name: "Faturas", icon: null },
+    { name: "Auditoria", icon: null }
+  ];
+
   const statsData = [{
     title: "Vouchers Ativos",
     value: "1",
@@ -70,28 +83,21 @@ const PortalBeneficio = () => {
           </div>
           
           <nav className="hidden md:flex items-center space-x-6">
-            <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white transition-colors">
-              <Gift className="w-4 h-4 mr-2" />
-              Início
-            </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white transition-colors">
-              Solicitar Voucher
-            </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white transition-colors">
-              Dashboard RH
-            </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white transition-colors">
-              Scanner Parceiro
-            </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white transition-colors">
-              Resgates
-            </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white transition-colors">
-              Faturas
-            </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white transition-colors">
-              Auditoria
-            </Button>
+            {navigationButtons.map((button, index) => (
+              <Button 
+                key={index}
+                variant="ghost" 
+                className={`transition-colors ${
+                  activeButton === button.name 
+                    ? "bg-white/30 text-white border-b-2 border-white/60" 
+                    : "text-white hover:bg-white/20 hover:text-white"
+                }`}
+                onClick={() => setActiveButton(button.name)}
+              >
+                {button.icon && <button.icon className="w-4 h-4 mr-2" />}
+                {button.name}
+              </Button>
+            ))}
           </nav>
         </div>
       </header>
