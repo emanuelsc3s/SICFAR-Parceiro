@@ -21,6 +21,8 @@ const Index = () => {
       navigate("/manualgestor");
     } else if (title === "FAQ") {
       navigate("/faq");
+    } else if (title === "Lis AI") {
+      navigate("/chatlisai");
     } else {
       console.log(`Clicked on ${title}`);
     }
