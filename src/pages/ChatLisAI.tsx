@@ -45,27 +45,43 @@ export default function ChatLisAI() {
   // Auto scroll para última mensagem
   useEffect(() => {
     const scrollToBottom = () => {
+      console.log('Tentando fazer scroll...', scrollAreaRef.current);
+      
       if (scrollAreaRef.current) {
         // Tenta múltiplos seletores para o viewport do ScrollArea
         const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]') ||
                                scrollAreaRef.current.querySelector('.scroll-area-viewport') ||
                                scrollAreaRef.current.firstElementChild;
         
+        console.log('Container encontrado:', scrollContainer);
+        
         if (scrollContainer) {
-          // Força múltiplos scrolls com delays diferentes para garantir
           const doScroll = () => {
-            scrollContainer.scrollTop = scrollContainer.scrollHeight;
+            const oldScrollTop = scrollContainer.scrollTop;
+            const scrollHeight = scrollContainer.scrollHeight;
+            const clientHeight = scrollContainer.clientHeight;
+            
+            console.log('Antes do scroll - scrollTop:', oldScrollTop, 'scrollHeight:', scrollHeight, 'clientHeight:', clientHeight);
+            
+            scrollContainer.scrollTop = scrollHeight;
+            
+            console.log('Depois do scroll - scrollTop:', scrollContainer.scrollTop);
           };
           
-          // Scroll imediato
-          doScroll();
-          
-          // Scrolls com delays para garantir que funcione
-          setTimeout(doScroll, 50);
-          setTimeout(doScroll, 150);
-          setTimeout(doScroll, 300);
-          setTimeout(doScroll, 500);
+          // Usa requestAnimationFrame para garantir que o DOM seja atualizado
+          requestAnimationFrame(() => {
+            doScroll();
+            
+            // Scrolls com delays para garantir
+            setTimeout(doScroll, 100);
+            setTimeout(doScroll, 300);
+            setTimeout(doScroll, 600);
+          });
+        } else {
+          console.log('ScrollContainer não encontrado');
         }
+      } else {
+        console.log('scrollAreaRef.current é null');
       }
     };
 
