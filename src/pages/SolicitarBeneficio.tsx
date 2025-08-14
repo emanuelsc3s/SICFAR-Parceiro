@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { Home, Plus, Users, QrCode, Download, DollarSign, Eye, Utensils, Car, GraduationCap, ArrowLeft, ArrowRight } from "lucide-react";
+import { Home, Plus, Users, QrCode, Download, DollarSign, Eye, Utensils, Car, GraduationCap, ArrowLeft, ArrowRight, CheckCircle, Copy } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import QRCode from "qrcode";
+import { toast } from "sonner";
 
 const SolicitarBeneficio = () => {
   const [activeButton, setActiveButton] = useState("Solicitar Voucher");
@@ -12,6 +14,15 @@ const SolicitarBeneficio = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [urgencia, setUrgencia] = useState("");
   const [informacoesAdicionais, setInformacoesAdicionais] = useState("");
+  const [voucher, setVoucher] = useState<{
+    id: string;
+    verificador: string;
+    qrCode: string;
+    dataGeracao: string;
+    programas: string[];
+    urgencia: string;
+    informacoes: string;
+  } | null>(null);
 
   const handleProgramSelection = (programTitle: string) => {
     setSelectedPrograms(prev => 
@@ -21,11 +32,48 @@ const SolicitarBeneficio = () => {
     );
   };
 
+  const generateVoucher = async () => {
+    try {
+      // Gerar IDs únicos
+      const voucherId = `VCH-${Date.now().toString().slice(-8)}`;
+      const verificador = Math.random().toString(36).substr(2, 12).toUpperCase();
+      
+      // Dados para o QR Code
+      const voucherData = {
+        id: voucherId,
+        verificador: verificador,
+        programas: selectedPrograms,
+        urgencia: urgencia || "Normal",
+        informacoes: informacoesAdicionais,
+        dataGeracao: new Date().toLocaleDateString("pt-BR"),
+      };
+      
+      // Gerar QR Code
+      const qrCodeData = await QRCode.toDataURL(JSON.stringify(voucherData), {
+        width: 200,
+        margin: 2,
+      });
+      
+      setVoucher({
+        ...voucherData,
+        qrCode: qrCodeData,
+      });
+      
+      setCurrentStep(4); // Novo step para mostrar o voucher
+      toast.success("Voucher gerado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao gerar voucher:", error);
+      toast.error("Erro ao gerar voucher. Tente novamente.");
+    }
+  };
+
   const handleNextStep = () => {
     if (currentStep === 1 && selectedPrograms.length > 0) {
       setCurrentStep(2);
     } else if (currentStep === 2) {
       setCurrentStep(3);
+    } else if (currentStep === 3) {
+      generateVoucher();
     }
   };
 
@@ -33,6 +81,11 @@ const SolicitarBeneficio = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Copiado para a área de transferência!");
   };
 
   const navigationButtons = [
@@ -125,30 +178,32 @@ const SolicitarBeneficio = () => {
           </p>
         </div>
 
-        {/* Steps Indicator */}
-        <div className="flex items-center justify-center mb-8 space-x-8">
-          {steps.map((step, index) => (
-            <div key={index} className="flex items-center">
-              <div className="flex flex-col items-center">
-                <div 
-                  className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold mb-2 ${
-                    step.active ? 'bg-blue-600' : 'bg-gray-400'
-                  }`}
-                  style={step.active ? { backgroundColor: "#1E3A8A" } : {}}
-                >
-                  {step.number}
+        {/* Steps Indicator - Only show for steps 1-3 */}
+        {currentStep < 4 && (
+          <div className="flex items-center justify-center mb-8 space-x-8">
+            {steps.map((step, index) => (
+              <div key={index} className="flex items-center">
+                <div className="flex flex-col items-center">
+                  <div 
+                    className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold mb-2 ${
+                      step.active ? 'bg-blue-600' : 'bg-gray-400'
+                    }`}
+                    style={step.active ? { backgroundColor: "#1E3A8A" } : {}}
+                  >
+                    {step.number}
+                  </div>
+                  <div className="text-center">
+                    <p className="font-semibold text-gray-900 text-sm">{step.title}</p>
+                    <p className="text-gray-600 text-xs">{step.subtitle}</p>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <p className="font-semibold text-gray-900 text-sm">{step.title}</p>
-                  <p className="text-gray-600 text-xs">{step.subtitle}</p>
-                </div>
+                {index < steps.length - 1 && (
+                  <div className="w-16 h-px bg-gray-300 ml-8 mr-8 mt-[-40px]"></div>
+                )}
               </div>
-              {index < steps.length - 1 && (
-                <div className="w-16 h-px bg-gray-300 ml-8 mr-8 mt-[-40px]"></div>
-              )}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Step 1: Program Selection */}
         {currentStep === 1 && (
@@ -290,29 +345,133 @@ const SolicitarBeneficio = () => {
           </Card>
         )}
 
-        {/* Navigation Buttons */}
-        <div className="flex justify-between">
-          <Button 
-            variant="outline" 
-            className="flex items-center space-x-2"
-            onClick={handlePrevStep}
-            disabled={currentStep === 1}
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Anterior</span>
-          </Button>
-          <Button 
-            style={{
-              backgroundColor: "#1E3A8A"
-            }}
-            className="text-white hover:opacity-90 flex items-center space-x-2"
-            onClick={handleNextStep}
-            disabled={currentStep === 1 && selectedPrograms.length === 0}
-          >
-            <span>{currentStep === 3 ? "Finalizar" : "Próximo"}</span>
-            <ArrowRight className="w-4 h-4" />
-          </Button>
-        </div>
+        {/* Step 4: Voucher Generated */}
+        {currentStep === 4 && voucher && (
+          <Card className="mb-8">
+            <CardContent className="p-6">
+              <div className="text-center mb-6">
+                <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Voucher Gerado com Sucesso!</h2>
+                <p className="text-gray-600">Seu voucher foi criado e está pronto para uso.</p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Informações do Voucher */}
+                <div className="space-y-4">
+                  <div className="bg-blue-50 p-4 rounded-lg border">
+                    <h3 className="font-semibold text-gray-900 mb-2">ID do Voucher</h3>
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-lg">{voucher.id}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyToClipboard(voucher.id)}
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="bg-yellow-50 p-4 rounded-lg border">
+                    <h3 className="font-semibold text-gray-900 mb-2">Código Verificador</h3>
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-lg">{voucher.verificador}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyToClipboard(voucher.verificador)}
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="font-semibold text-gray-900 mb-3">Programas Incluídos</h3>
+                    <div className="space-y-2">
+                      {voucher.programas.map((programa, index) => {
+                        const programaData = programasDisponiveis.find(p => p.title === programa);
+                        return (
+                          <div key={index} className="flex justify-between items-center">
+                            <span className="text-gray-700">{programa}</span>
+                            <span className="font-semibold">{programaData?.value}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="font-semibold text-gray-900 mb-2">Data de Geração</h3>
+                    <p className="text-gray-700">{voucher.dataGeracao}</p>
+                  </div>
+                </div>
+
+                {/* QR Code */}
+                <div className="flex flex-col items-center justify-center">
+                  <h3 className="font-semibold text-gray-900 mb-4">QR Code do Voucher</h3>
+                  <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
+                    <img src={voucher.qrCode} alt="QR Code do Voucher" className="mx-auto" />
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2 text-center">
+                    Escaneie este QR Code para validar o voucher
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="flex justify-center space-x-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      // Reset para criar novo voucher
+                      setCurrentStep(1);
+                      setSelectedPrograms([]);
+                      setUrgencia("");
+                      setInformacoesAdicionais("");
+                      setVoucher(null);
+                    }}
+                  >
+                    Criar Novo Voucher
+                  </Button>
+                  <Button
+                    style={{ backgroundColor: "#1E3A8A" }}
+                    className="text-white hover:opacity-90"
+                    onClick={() => window.print()}
+                  >
+                    Imprimir Voucher
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Navigation Buttons - Only show when not in voucher step */}
+        {currentStep < 4 && (
+          <div className="flex justify-between">
+            <Button 
+              variant="outline" 
+              className="flex items-center space-x-2"
+              onClick={handlePrevStep}
+              disabled={currentStep === 1}
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Anterior</span>
+            </Button>
+            <Button 
+              style={{
+                backgroundColor: "#1E3A8A"
+              }}
+              className="text-white hover:opacity-90 flex items-center space-x-2"
+              onClick={handleNextStep}
+              disabled={currentStep === 1 && selectedPrograms.length === 0}
+            >
+              <span>{currentStep === 3 ? "Finalizar" : "Próximo"}</span>
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
