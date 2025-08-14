@@ -14,7 +14,7 @@ import SystemStatus from "@/components/SystemStatus";
 const Index = () => {
   const mainTiles = [
     {
-      title: "Gestão de Dados e Perfil",
+      title: "Gestão de Dados",
       description: "Acesse e atualize suas informações pessoais, documentos e dados cadastrais",
       icon: User,
       gradient: true
