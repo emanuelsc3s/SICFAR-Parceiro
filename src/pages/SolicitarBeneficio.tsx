@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, Plus, Users, QrCode, Download, DollarSign, Eye, ArrowLeft, ArrowRight, Utensils, Car, GraduationCap } from "lucide-react";
+import { Home, Plus, Users, QrCode, Download, DollarSign, Eye, ArrowLeft, ArrowRight, Flame, Pill, Car, Heart, Bus, Fuel } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -22,25 +22,46 @@ const SolicitarBeneficio = () => {
 
   const beneficios = [
     {
-      id: "vale-alimentacao",
-      title: "Vale Alimentação",
-      description: "Benefício para alimentação e refeições",
-      value: "R$ 500,00",
-      icon: Utensils
+      id: "vale-gas",
+      title: "Vale Gás",
+      description: "Benefício para compra de gás de cozinha",
+      value: "R$ 125,00",
+      icon: Flame
     },
     {
-      id: "vale-transporte", 
+      id: "vale-farmacia-santa-cecilia",
+      title: "Vale Farmácia Santa Cecília",
+      description: "Benefício para compras na Farmácia Santa Cecília",
+      value: "Máx R$ 300,00",
+      icon: Pill
+    },
+    {
+      id: "vale-farmacia-gentil",
+      title: "Vale Farmácia Gentil",
+      description: "Benefício para compras na Farmácia Gentil",
+      value: "Máx R$ 300,00",
+      icon: Pill
+    },
+    {
+      id: "vale-combustivel",
+      title: "Vale Combustível",
+      description: "Benefício para abastecimento de veículos",
+      value: "Consultar valor",
+      icon: Fuel
+    },
+    {
+      id: "plano-saude",
+      title: "Plano de Saúde",
+      description: "Cobertura de assistência médica e hospitalar",
+      value: "R$ 79,00",
+      icon: Heart
+    },
+    {
+      id: "vale-transporte",
       title: "Vale Transporte",
       description: "Auxílio para deslocamento urbano",
-      value: "R$ 150,00",
-      icon: Car
-    },
-    {
-      id: "vale-educacao",
-      title: "Vale Educação", 
-      description: "Investimento em cursos e capacitação",
-      value: "R$ 1.000,00",
-      icon: GraduationCap
+      value: "R$ 35,00",
+      icon: Bus
     }
   ];
 
