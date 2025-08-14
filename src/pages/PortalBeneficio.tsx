@@ -70,26 +70,26 @@ const PortalBeneficio = () => {
           </div>
           
           <nav className="hidden md:flex items-center space-x-6">
-            <Button variant="ghost" className="text-white hover:bg-white/10">
+            <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white transition-colors">
               <Gift className="w-4 h-4 mr-2" />
               Início
             </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/10">
+            <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white transition-colors">
               Solicitar Voucher
             </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/10">
+            <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white transition-colors">
               Dashboard RH
             </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/10">
+            <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white transition-colors">
               Scanner Parceiro
             </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/10">
+            <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white transition-colors">
               Resgates
             </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/10">
+            <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white transition-colors">
               Faturas
             </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/10">
+            <Button variant="ghost" className="text-white hover:bg-white/20 hover:text-white transition-colors">
               Auditoria
             </Button>
           </nav>
