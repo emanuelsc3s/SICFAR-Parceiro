@@ -134,7 +134,7 @@ const ManualGestor = () => {
                       </p>
                     </div>
                   </div>
-                  <div className="w-12 h-[2px] bg-muted-foreground/20 group-hover:bg-slate-400 transition-colors"></div>
+                  
                 </div>;
           })}
           </div>
