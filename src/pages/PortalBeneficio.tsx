@@ -75,7 +75,7 @@ const PortalBeneficio = () => {
       <header className="bg-blue-600 text-white px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2">
-          <img src="/farmace-logo.png" alt="Farmace Logo" className="object-contain h-8" />
+          <img src="/farmace-logo.png" alt="Farmace Logo" className="object-contain h-8" style={{width: "149.98px", height: "68.97px"}} />
             <span className="font-semibold text-lg">Nosso RH</span>
           </div>
           
