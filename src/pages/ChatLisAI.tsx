@@ -24,6 +24,7 @@ export default function ChatLisAI() {
   const [showRetryModal, setShowRetryModal] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [trainingData, setTrainingData] = useState("");
+  const [selectedModel, setSelectedModel] = useState("gpt-4.1-2025-04-14");
   const [retryCount, setRetryCount] = useState(0);
   const [lastMessageTime, setLastMessageTime] = useState(0);
   const [isSending, setIsSending] = useState(false);
@@ -44,9 +45,11 @@ export default function ChatLisAI() {
   useEffect(() => {
     const savedApiKey = localStorage.getItem("openai_api_key");
     const savedTrainingData = localStorage.getItem("lis_training_data");
+    const savedModel = localStorage.getItem("openai_model") || "gpt-4.1-2025-04-14";
     
     if (savedApiKey) setApiKey(savedApiKey);
     if (savedTrainingData) setTrainingData(savedTrainingData);
+    setSelectedModel(savedModel);
 
     // Gera saudação inicial da IA
     const generateInitialGreeting = async () => {
@@ -72,15 +75,15 @@ export default function ChatLisAI() {
             'Authorization': `Bearer ${savedApiKey}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            model: 'gpt-4.1-2025-04-14',
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: 'Diga um oi de boas-vindas curto e amigável para iniciar nossa conversa.' }
-            ],
-            max_tokens: 150,
-            temperature: 0.7,
-          }),
+        body: JSON.stringify({
+          model: savedModel,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: 'Diga um oi de boas-vindas curto e amigável para iniciar nossa conversa.' }
+          ],
+          max_tokens: 150,
+          temperature: 0.7,
+        }),
         });
 
         if (response.ok) {
@@ -159,7 +162,7 @@ export default function ChatLisAI() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4.1-2025-04-14',
+          model: selectedModel,
           messages: [
             { role: 'system', content: systemPrompt },
             ...messages.slice(-10).map(msg => ({
@@ -245,7 +248,7 @@ export default function ChatLisAI() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'gpt-4.1-2025-04-14',
+            model: selectedModel,
             messages: [
               { role: 'system', content: systemPrompt },
               ...messages.slice(-10).map(msg => ({

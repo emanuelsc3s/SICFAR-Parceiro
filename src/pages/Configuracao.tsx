@@ -7,23 +7,59 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+
+// Modelos disponíveis da OpenAI
+const AVAILABLE_MODELS = [
+  { 
+    value: "gpt-4.1-2025-04-14", 
+    label: "GPT-4.1 (2025-04-14)", 
+    description: "Modelo flagship - mais capaz e inteligente" 
+  },
+  { 
+    value: "o3-2025-04-16", 
+    label: "O3 (2025-04-16)", 
+    description: "Modelo de raciocínio poderoso para problemas complexos" 
+  },
+  { 
+    value: "o4-mini-2025-04-16", 
+    label: "O4 Mini (2025-04-16)", 
+    description: "Modelo de raciocínio rápido e eficiente" 
+  },
+  { 
+    value: "gpt-4.1-mini-2025-04-14", 
+    label: "GPT-4.1 Mini (2025-04-14)", 
+    description: "Modelo mais leve com suporte a visão" 
+  },
+  { 
+    value: "gpt-4o", 
+    label: "GPT-4o", 
+    description: "Modelo anterior mais poderoso" 
+  }
+];
 
 export default function Configuracao() {
   const [apiKey, setApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
   const [trainingData, setTrainingData] = useState("");
+  const [selectedModel, setSelectedModel] = useState("gpt-4.1-2025-04-14");
   const [isSaving, setIsSaving] = useState(false);
 
   // Carrega as configurações do localStorage ao montar o componente
   useEffect(() => {
     const savedApiKey = localStorage.getItem("openai_api_key");
     const savedTrainingData = localStorage.getItem("lis_training_data");
+    const savedModel = localStorage.getItem("openai_model");
+    
     if (savedApiKey) {
       setApiKey(savedApiKey);
     }
     if (savedTrainingData) {
       setTrainingData(savedTrainingData);
+    }
+    if (savedModel) {
+      setSelectedModel(savedModel);
     }
   }, []);
 
@@ -39,6 +75,7 @@ export default function Configuracao() {
       // Salva no localStorage
       localStorage.setItem("openai_api_key", apiKey.trim());
       localStorage.setItem("lis_training_data", trainingData.trim());
+      localStorage.setItem("openai_model", selectedModel);
       
       toast.success("Configurações salvas com sucesso!");
     } catch (error) {
@@ -52,8 +89,10 @@ export default function Configuracao() {
   const handleClear = () => {
     setApiKey("");
     setTrainingData("");
+    setSelectedModel("gpt-4.1-2025-04-14");
     localStorage.removeItem("openai_api_key");
     localStorage.removeItem("lis_training_data");
+    localStorage.removeItem("openai_model");
     toast.success("Configurações removidas com sucesso!");
   };
 
@@ -125,6 +164,30 @@ export default function Configuracao() {
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="model-select" className="text-sm font-medium">
+                    Modelo da IA
+                  </Label>
+                  <Select value={selectedModel} onValueChange={setSelectedModel}>
+                    <SelectTrigger id="model-select">
+                      <SelectValue placeholder="Selecione o modelo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {AVAILABLE_MODELS.map((model) => (
+                        <SelectItem key={model.value} value={model.value}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{model.label}</span>
+                            <span className="text-xs text-muted-foreground">{model.description}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Escolha o modelo de IA que melhor atende às suas necessidades. GPT-4.1 é recomendado para uso geral.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="training-data" className="text-sm font-medium">
                     Dados de Treinamento da Lis
                   </Label>
@@ -153,7 +216,7 @@ export default function Configuracao() {
                   <Button 
                     variant="outline"
                     onClick={handleClear}
-                    disabled={!apiKey && !trainingData}
+                    disabled={!apiKey && !trainingData && selectedModel === "gpt-4.1-2025-04-14"}
                   >
                     Limpar
                   </Button>
