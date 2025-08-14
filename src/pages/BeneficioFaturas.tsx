@@ -7,7 +7,12 @@ import {
   CheckCircle,
   Eye,
   Trash2,
-  Check
+  Check,
+  Home,
+  Plus,
+  Users,
+  QrCode,
+  Download
 } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -97,13 +102,13 @@ const BeneficioFaturas = () => {
           
           <nav className="hidden md:flex items-center space-x-2 ml-12">
             {[
-              { name: "Início", icon: "Home" },
-              { name: "Solicitar Voucher", icon: "Plus" },
-              { name: "Dashboard RH", icon: "Users" },
-              { name: "Scanner Parceiro", icon: "QrCode" },
-              { name: "Resgates", icon: "Download" },
-              { name: "Faturas", icon: "DollarSign" },
-              { name: "Auditoria", icon: "Eye" }
+              { name: "Início", icon: Home },
+              { name: "Solicitar Voucher", icon: Plus },
+              { name: "Dashboard RH", icon: Users },
+              { name: "Scanner Parceiro", icon: QrCode },
+              { name: "Resgates", icon: Download },
+              { name: "Faturas", icon: DollarSign },
+              { name: "Auditoria", icon: Eye }
             ].map((button, index) => (
               <Button 
                 key={index}
@@ -114,9 +119,8 @@ const BeneficioFaturas = () => {
                     : "text-white hover:bg-white/20 hover:text-white"
                 }`}
               >
-                {button.name === "Faturas" && <DollarSign className="w-4 h-4 mr-2" />}
-                {button.name !== "Faturas" && button.name}
-                {button.name === "Faturas" && "Faturas"}
+                <button.icon className="w-4 h-4 mr-2" />
+                {button.name}
               </Button>
             ))}
           </nav>
