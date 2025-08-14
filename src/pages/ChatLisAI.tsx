@@ -25,6 +25,7 @@ export default function ChatLisAI() {
   const [apiKey, setApiKey] = useState("");
   const [trainingData, setTrainingData] = useState("");
   const [retryCount, setRetryCount] = useState(0);
+  const [lastMessageTime, setLastMessageTime] = useState(0);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -157,7 +158,7 @@ export default function ChatLisAI() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'gpt-4.1-2025-04-14',
           messages: [
             { role: 'system', content: systemPrompt },
             ...messages.slice(-10).map(msg => ({
@@ -243,7 +244,7 @@ export default function ChatLisAI() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'gpt-4o',
+            model: 'gpt-4.1-2025-04-14',
             messages: [
               { role: 'system', content: systemPrompt },
               ...messages.slice(-10).map(msg => ({
@@ -311,6 +312,19 @@ export default function ChatLisAI() {
 
   const sendMessage = async () => {
     if (!inputMessage.trim()) return;
+    
+    // Controle de spam - mínimo 2 segundos entre mensagens
+    const now = Date.now();
+    const timeSinceLastMessage = now - lastMessageTime;
+    const minimumDelay = 2000; // 2 segundos
+    
+    if (timeSinceLastMessage < minimumDelay) {
+      const remainingTime = Math.ceil((minimumDelay - timeSinceLastMessage) / 1000);
+      toast.error(`Aguarde ${remainingTime} segundo(s) antes de enviar outra mensagem`);
+      return;
+    }
+    
+    setLastMessageTime(now);
     
     const userMessage: Message = {
       id: Date.now().toString(),
