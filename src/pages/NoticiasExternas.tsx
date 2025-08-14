@@ -334,10 +334,10 @@ const NoticiasExternas = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Notícias Farmacêuticas Externas
+            Notícias Externas
           </h1>
           <p className="text-muted-foreground">
-            Monitoramento de notícias farmacêuticas de portais brasileiros via RSS
+            Monitoramento de notícias farmacêuticas de portais brasileiros
           </p>
           {lastUpdate && (
             <p className="text-sm text-muted-foreground mt-2">
