@@ -314,14 +314,26 @@ const BeneficioFaturaDetalhe = () => {
       <main className="container mx-auto px-6 py-8">
         {/* Breadcrumb e botão voltar */}
         <div className="mb-6">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate("/beneficiofaturas")}
-            className="mb-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar para Faturas
-          </Button>
+          <div className="flex items-center justify-between">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate("/beneficiofaturas")}
+              className="mb-4"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Voltar para Faturas
+            </Button>
+            
+            {fatura.status !== "Contestada" && (
+              <Button 
+                variant="outline" 
+                className="mb-4 text-orange-600 border-orange-200 hover:bg-orange-50"
+                onClick={handleContestFatura}
+              >
+                Contestar Fatura
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Informações da Fatura */}
@@ -339,15 +351,6 @@ const BeneficioFaturaDetalhe = () => {
                 <div className="text-2xl font-bold mt-2">
                   R$ {fatura.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </div>
-                {fatura.status !== "Contestada" && (
-                  <Button 
-                    variant="outline" 
-                    className="mt-3 text-orange-600 border-orange-200 hover:bg-orange-50"
-                    onClick={handleContestFatura}
-                  >
-                    Contestar Fatura
-                  </Button>
-                )}
               </div>
             </div>
           </CardHeader>
