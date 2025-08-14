@@ -146,13 +146,32 @@
     background: linear-gradient(
       45deg, 
       transparent 30%, 
-      rgba(255, 255, 255, 0.1) 50%, 
+      rgba(255, 255, 255, 0.2) 48%, 
+      rgba(255, 255, 255, 0.4) 50%, 
+      rgba(255, 255, 255, 0.2) 52%, 
       transparent 70%
     );
     width: 200%;
     height: 200%;
-    animation: shine 3s ease-in-out infinite;
+    animation: slide-diagonal 5s linear infinite;
     pointer-events: none;
+  }
+
+  .hero-gradient::after {
+    content: '';
+    position: absolute;
+    top: 10%;
+    right: 15%;
+    width: 8px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: float 4s ease-in-out infinite;
+    pointer-events: none;
+    box-shadow: 
+      20px 30px 0 -2px rgba(255, 255, 255, 0.2),
+      -15px 20px 0 -1px rgba(255, 255, 255, 0.15),
+      30px -10px 0 -3px rgba(255, 255, 255, 0.1);
   }
 
   .subtle-gradient {
