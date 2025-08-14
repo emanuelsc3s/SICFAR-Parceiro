@@ -9,6 +9,7 @@ import ManualGestor from "./pages/ManualGestor";
 import FAQ from "./pages/FAQ";
 import Configuracao from "./pages/Configuracao";
 import ChatLisAI from "./pages/ChatLisAI";
+import PortalBeneficio from "./pages/PortalBeneficio";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/faq" element={<FAQ />} />
           <Route path="/configuracao" element={<Configuracao />} />
           <Route path="/chatlisai" element={<ChatLisAI />} />
+          <Route path="/portalbeneficio" element={<PortalBeneficio />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
