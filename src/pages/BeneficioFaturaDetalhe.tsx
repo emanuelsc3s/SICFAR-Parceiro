@@ -327,7 +327,7 @@ const BeneficioFaturaDetalhe = () => {
             {fatura.status !== "Contestada" && (
               <Button 
                 variant="outline" 
-                className="mb-4 text-orange-600 border-orange-200 hover:bg-orange-50"
+                className="mb-4 bg-orange-600 text-white border-orange-600 hover:bg-orange-700 hover:border-orange-700"
                 onClick={handleContestFatura}
               >
                 Contestar Fatura
