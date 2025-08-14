@@ -18,6 +18,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Table,
   TableBody,
@@ -31,9 +43,11 @@ const BeneficioFaturaDetalhe = () => {
   const { faturaId } = useParams();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [motivoContestacao, setMotivoContestacao] = useState("");
 
   // Dados mockados da fatura específica
-  const faturaInfo = {
+  const [faturaInfo, setFaturaInfo] = useState({
     1: {
       parceiro: "Farmacia Santa Cecilia",
       referencia: "2024-01",
@@ -55,7 +69,7 @@ const BeneficioFaturaDetalhe = () => {
       status: "Contestada",
       dataCriacao: "29/01/2024"
     }
-  };
+  });
 
   // Dados mockados dos vouchers por fatura
   const vouchersPorFatura = {
@@ -198,6 +212,24 @@ const BeneficioFaturaDetalhe = () => {
   const fatura = faturaInfo[Number(faturaId) as keyof typeof faturaInfo];
   const vouchers = vouchersPorFatura[Number(faturaId) as keyof typeof vouchersPorFatura] || [];
 
+  const handleContestFatura = () => {
+    setDialogOpen(true);
+  };
+
+  const confirmContestFatura = () => {
+    if (motivoContestacao.trim()) {
+      setFaturaInfo(prevFaturaInfo => ({
+        ...prevFaturaInfo,
+        [Number(faturaId)]: {
+          ...prevFaturaInfo[Number(faturaId) as keyof typeof prevFaturaInfo],
+          status: "Contestada"
+        }
+      }));
+      setDialogOpen(false);
+      setMotivoContestacao("");
+    }
+  };
+
   const filteredVouchers = vouchers.filter(voucher =>
     voucher.funcionario.toLowerCase().includes(searchTerm.toLowerCase()) ||
     voucher.id.toLowerCase().includes(searchTerm.toLowerCase())
@@ -307,6 +339,15 @@ const BeneficioFaturaDetalhe = () => {
                 <div className="text-2xl font-bold mt-2">
                   R$ {fatura.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </div>
+                {fatura.status !== "Contestada" && (
+                  <Button 
+                    variant="outline" 
+                    className="mt-3 text-orange-600 border-orange-200 hover:bg-orange-50"
+                    onClick={handleContestFatura}
+                  >
+                    Contestar Fatura
+                  </Button>
+                )}
               </div>
             </div>
           </CardHeader>
@@ -423,6 +464,45 @@ const BeneficioFaturaDetalhe = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Modal de Contestação */}
+        <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <AlertDialogContent className="max-w-md">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Contestar Fatura</AlertDialogTitle>
+              <AlertDialogDescription>
+                Deseja realmente contestar esta fatura? Por favor, informe o motivo da contestação.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="py-4">
+              <Label htmlFor="motivo" className="text-sm font-medium">
+                Motivo da Contestação
+              </Label>
+              <Textarea
+                id="motivo"
+                placeholder="Descreva o motivo da contestação..."
+                value={motivoContestacao}
+                onChange={(e) => setMotivoContestacao(e.target.value)}
+                className="mt-2 min-h-[100px]"
+              />
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => {
+                setDialogOpen(false);
+                setMotivoContestacao("");
+              }}>
+                Não
+              </AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={confirmContestFatura}
+                disabled={!motivoContestacao.trim()}
+                className="bg-orange-600 hover:bg-orange-700"
+              >
+                Sim, Contestar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
     </div>
   );
