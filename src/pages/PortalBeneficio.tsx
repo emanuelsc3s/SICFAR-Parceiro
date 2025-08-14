@@ -1,4 +1,4 @@
-import { Gift, DollarSign, Clock, Utensils, Car, GraduationCap, Home, Plus, Users, QrCode, Download, Eye } from "lucide-react";
+import { Gift, DollarSign, Clock, Fuel, Cross, Home, Plus, Users, QrCode, Download, Eye, Heart, Bus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -42,20 +42,35 @@ const PortalBeneficio = () => {
     borderColor: "border-yellow-500"
   }];
   const programasDisponiveis = [{
-    title: "Vale Alimentação",
-    description: "Benefício para alimentação e refeições",
-    value: "R$ 500,00",
-    icon: Utensils
+    title: "Vale Gás",
+    description: "Auxílio para gás de cozinha",
+    value: "R$ 125,00",
+    icon: Fuel
+  }, {
+    title: "Vale Farmácia Santa Cecília",
+    description: "Medicamentos e produtos farmacêuticos",
+    value: "Máx R$ 300,00",
+    icon: Cross
+  }, {
+    title: "Vale Farmácia Gentil",
+    description: "Medicamentos e produtos farmacêuticos",
+    value: "Máx R$ 300,00",
+    icon: Cross
+  }, {
+    title: "Vale Combustível",
+    description: "Auxílio para combustível",
+    value: "Consultar valor",
+    icon: Fuel
+  }, {
+    title: "Plano de Saúde",
+    description: "Assistência médica e hospitalar",
+    value: "R$ 79,00",
+    icon: Heart
   }, {
     title: "Vale Transporte",
     description: "Auxílio para deslocamento urbano",
-    value: "R$ 150,00",
-    icon: Car
-  }, {
-    title: "Vale Educação",
-    description: "Investimento em cursos e capacitação",
-    value: "R$ 1.000,00",
-    icon: GraduationCap
+    value: "R$ 35,00",
+    icon: Bus
   }];
   const meusVouchers = [{
     title: "Vale Alimentação",
