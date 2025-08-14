@@ -1,4 +1,4 @@
-import { Gift, DollarSign, Clock, Utensils, Car, GraduationCap } from "lucide-react";
+import { Gift, DollarSign, Clock, Utensils, Car, GraduationCap, Home, Plus, Users, QrCode, Download, Eye } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,13 +7,13 @@ const PortalBeneficio = () => {
   const [activeButton, setActiveButton] = useState("Início");
 
   const navigationButtons = [
-    { name: "Início", icon: Gift },
-    { name: "Solicitar Voucher", icon: null },
-    { name: "Dashboard RH", icon: null },
-    { name: "Scanner Parceiro", icon: null },
-    { name: "Resgates", icon: null },
-    { name: "Faturas", icon: null },
-    { name: "Auditoria", icon: null }
+    { name: "Início", icon: Home },
+    { name: "Solicitar Voucher", icon: Plus },
+    { name: "Dashboard RH", icon: Users },
+    { name: "Scanner Parceiro", icon: QrCode },
+    { name: "Resgates", icon: Download },
+    { name: "Faturas", icon: DollarSign },
+    { name: "Auditoria", icon: Eye }
   ];
 
   const statsData = [{
