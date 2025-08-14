@@ -9,7 +9,7 @@ import {
   Trash2,
   Check
 } from "lucide-react";
-import Header from "@/components/Header";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -83,7 +83,45 @@ const BeneficioFaturas = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      {/* Header Navigation */}
+      <header className="text-white px-6 py-2" style={{
+        backgroundColor: "#1E3A8A"
+      }}>
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <img src="/farmace-logo.png" alt="Farmace Logo" className="object-contain h-8" style={{
+              width: "149.98px",
+              height: "68.97px"
+            }} />
+          </div>
+          
+          <nav className="hidden md:flex items-center space-x-2 ml-12">
+            {[
+              { name: "Início", icon: "Home" },
+              { name: "Solicitar Voucher", icon: "Plus" },
+              { name: "Dashboard RH", icon: "Users" },
+              { name: "Scanner Parceiro", icon: "QrCode" },
+              { name: "Resgates", icon: "Download" },
+              { name: "Faturas", icon: "DollarSign" },
+              { name: "Auditoria", icon: "Eye" }
+            ].map((button, index) => (
+              <Button 
+                key={index}
+                variant="ghost" 
+                className={`transition-colors px-3 py-2 text-sm ${
+                  button.name === "Faturas"
+                    ? "bg-white/30 text-white border-b-2 border-white/60" 
+                    : "text-white hover:bg-white/20 hover:text-white"
+                }`}
+              >
+                {button.name === "Faturas" && <DollarSign className="w-4 h-4 mr-2" />}
+                {button.name !== "Faturas" && button.name}
+                {button.name === "Faturas" && "Faturas"}
+              </Button>
+            ))}
+          </nav>
+        </div>
+      </header>
       
       <main className="container mx-auto px-6 py-8">
         {/* Cabeçalho da página */}
