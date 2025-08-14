@@ -165,8 +165,8 @@ const SolicitarBeneficio = () => {
 
           {/* Voucher Card */}
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            {/* Header - Orange gradient like the invoice */}
-            <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-8 py-6 text-white">
+            {/* Header - Blue gradient like the primary theme */}
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 text-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
@@ -174,11 +174,11 @@ const SolicitarBeneficio = () => {
                   </div>
                   <div>
                     <h1 className="text-2xl font-bold">Voucher Gerado</h1>
-                    <p className="text-orange-100">Farmace Benefícios</p>
+                    <p className="text-blue-100">Farmace Benefícios</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-orange-100 text-sm">Data de geração</p>
+                  <p className="text-blue-100 text-sm">Data de geração</p>
                   <p className="text-lg font-semibold">{new Date().toLocaleDateString("pt-BR")}</p>
                 </div>
               </div>
@@ -196,11 +196,11 @@ const SolicitarBeneficio = () => {
               </div>
 
               {/* Main Voucher Info */}
-              <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-6 border-2 border-orange-200 mb-8">
+              <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-6 border-2 border-blue-200 mb-8">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Número do Voucher</p>
-                    <p className="text-3xl font-bold text-orange-600">{generateVoucherNumber()}</p>
+                    <p className="text-3xl font-bold text-blue-600">{generateVoucherNumber()}</p>
                     <p className="text-sm text-gray-500 mt-1">
                       Este é o seu código de identificação
                     </p>
@@ -238,7 +238,7 @@ const SolicitarBeneficio = () => {
                     return (
                       <div key={beneficioId} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                         <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                             <IconComponent className="w-5 h-5 text-white" />
                           </div>
                           <div>
@@ -247,7 +247,7 @@ const SolicitarBeneficio = () => {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold text-orange-600">{beneficio.value}</p>
+                          <p className="font-semibold text-blue-600">{beneficio.value}</p>
                           <p className="text-xs text-gray-500">Disponível</p>
                         </div>
                       </div>
@@ -286,7 +286,7 @@ const SolicitarBeneficio = () => {
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
-                  className="flex-1 bg-orange-600 hover:bg-orange-700 text-white"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                   onClick={() => window.print()}
                 >
                   <Download className="w-4 h-4 mr-2" />
