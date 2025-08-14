@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
+import { differenceInYears, differenceInMonths, parseISO, parse } from "date-fns";
 import Header from "@/components/Header";
 
 interface BirthdayPerson {
@@ -365,6 +366,28 @@ const allBirthdayData: BirthdayPerson[] = [
   { name: "CAIKE DAVI DE MATOS VIEIRA", department: "Físico Químico", date: "31/08", fullDate: "31 de Agosto", avatar: "", admissionDate: "10/06/2019" },
 ];
 
+const calculateTimeAtCompany = (admissionDate: string) => {
+  try {
+    const admission = parse(admissionDate, "dd/MM/yyyy", new Date());
+    const today = new Date();
+    
+    const years = differenceInYears(today, admission);
+    const months = differenceInMonths(today, admission) % 12;
+    
+    if (years === 0 && months === 0) {
+      return "Menos de 1 mês de casa";
+    } else if (years === 0) {
+      return `${months} ${months === 1 ? 'mês' : 'meses'} de casa`;
+    } else if (months === 0) {
+      return `${years} ${years === 1 ? 'ano' : 'anos'} de casa`;
+    } else {
+      return `${years} ${years === 1 ? 'ano' : 'anos'} e ${months} ${months === 1 ? 'mês' : 'meses'} de casa`;
+    }
+  } catch (error) {
+    return admissionDate;
+  }
+};
+
 const Aniversariantes = () => {
   const navigate = useNavigate();
   
@@ -606,7 +629,7 @@ const Aniversariantes = () => {
                             <span className="text-xs text-primary font-medium">{person.fullDate}</span>
                             {person.admissionDate && (
                               <span className="text-xs text-muted-foreground ml-2">
-                                (Adm: {person.admissionDate})
+                                ({calculateTimeAtCompany(person.admissionDate)})
                               </span>
                             )}
                           </div>
