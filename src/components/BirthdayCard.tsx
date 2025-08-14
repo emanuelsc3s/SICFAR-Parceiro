@@ -9,12 +9,35 @@ interface BirthdayPerson {
   department: string;
   date: string;
   avatar?: string;
+  admissionDate: string;
+  birthDate: string;
 }
 
 const birthdayData: BirthdayPerson[] = [
-  { name: "Carlos Santos", department: "TI", date: "15/08", avatar: "" },
-  { name: "Maria João", department: "Marketing", date: "22/08", avatar: "" },
-  { name: "Pedro Costa", department: "Vendas", date: "28/08", avatar: "" },
+  { 
+    name: "GLEDSON GUSTAVO DE SOUSA SILVA", 
+    department: "EMBALAGEM SPEPII", 
+    date: "02/08", 
+    avatar: "",
+    admissionDate: "04.06.2024",
+    birthDate: "02.08.2005"
+  },
+  { 
+    name: "SAULO MENDES TEIXEIRA", 
+    department: "CONSTRUÇÃO II", 
+    date: "02/08", 
+    avatar: "",
+    admissionDate: "13.04.2021",
+    birthDate: "02.08.1990"
+  },
+  { 
+    name: "DONILTON ALVES DOS SANTOS", 
+    department: "EMBALAGEM SPEPII", 
+    date: "02/08", 
+    avatar: "",
+    admissionDate: "01.12.2012",
+    birthDate: "02.08.1983"
+  },
 ];
 
 const BirthdayCard = () => {
