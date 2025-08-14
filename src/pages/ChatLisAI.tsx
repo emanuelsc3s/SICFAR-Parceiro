@@ -202,8 +202,8 @@ export default function ChatLisAI() {
       </div>
 
       {/* Chat Container - com margin-top para compensar o header fixo */}
-      <div className="pt-32 h-screen flex flex-col">
-        <div className="flex-1 container mx-auto px-6 py-8 flex flex-col max-w-4xl">
+      <div className="pt-36 pb-8 h-screen flex flex-col">
+        <div className="flex-1 container mx-auto px-6 flex flex-col max-w-4xl">
         <Card className="flex-1 flex flex-col overflow-hidden">
           {/* Chat Messages */}
           <ScrollArea className="flex-1 p-6" ref={scrollAreaRef}>
