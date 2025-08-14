@@ -94,7 +94,12 @@ const PortalBeneficio = () => {
                     ? "bg-white/30 text-white border-b-2 border-white/60" 
                     : "text-white hover:bg-white/20 hover:text-white"
                 }`}
-                onClick={() => setActiveButton(button.name)}
+                onClick={() => {
+                  setActiveButton(button.name);
+                  if (button.name === "Faturas") {
+                    navigate('/beneficiofaturas');
+                  }
+                }}
               >
                 {button.icon && <button.icon className="w-4 h-4 mr-2" />}
                 {button.name}
