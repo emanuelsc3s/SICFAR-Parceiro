@@ -46,17 +46,25 @@ export default function ChatLisAI() {
   useEffect(() => {
     const scrollToBottom = () => {
       if (scrollAreaRef.current) {
-        const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+        // Tenta múltiplos seletores para o viewport do ScrollArea
+        const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]') ||
+                               scrollAreaRef.current.querySelector('.scroll-area-viewport') ||
+                               scrollAreaRef.current.firstElementChild;
+        
         if (scrollContainer) {
-          // Força o scroll até o final
-          setTimeout(() => {
+          // Força múltiplos scrolls com delays diferentes para garantir
+          const doScroll = () => {
             scrollContainer.scrollTop = scrollContainer.scrollHeight;
-          }, 50);
+          };
           
-          // Scroll adicional com delay maior para garantir
-          setTimeout(() => {
-            scrollContainer.scrollTop = scrollContainer.scrollHeight;
-          }, 200);
+          // Scroll imediato
+          doScroll();
+          
+          // Scrolls com delays para garantir que funcione
+          setTimeout(doScroll, 50);
+          setTimeout(doScroll, 150);
+          setTimeout(doScroll, 300);
+          setTimeout(doScroll, 500);
         }
       }
     };
