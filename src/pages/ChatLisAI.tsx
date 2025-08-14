@@ -48,14 +48,20 @@ export default function ChatLisAI() {
       if (scrollAreaRef.current) {
         const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
         if (scrollContainer) {
-          scrollContainer.scrollTop = scrollContainer.scrollHeight;
+          // Força o scroll até o final
+          setTimeout(() => {
+            scrollContainer.scrollTop = scrollContainer.scrollHeight;
+          }, 50);
+          
+          // Scroll adicional com delay maior para garantir
+          setTimeout(() => {
+            scrollContainer.scrollTop = scrollContainer.scrollHeight;
+          }, 200);
         }
       }
     };
 
-    // Pequeno delay para garantir que o DOM seja atualizado
-    const timeoutId = setTimeout(scrollToBottom, 100);
-    return () => clearTimeout(timeoutId);
+    scrollToBottom();
   }, [messages]);
 
   const sendMessage = async () => {
