@@ -11,7 +11,8 @@ const PortalBeneficio = () => {
       description: "Disponíveis para uso",
       icon: Gift,
       color: "bg-blue-500",
-      borderColor: "border-blue-500"
+      borderColor: "border-blue-500",
+      customBorderColor: "#1E3A8A"
     },
     {
       title: "Valor Total", 
@@ -72,7 +73,7 @@ const PortalBeneficio = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header Navigation */}
-      <header className="bg-blue-600 text-white px-6 py-4">
+      <header className="text-white px-6 py-4" style={{backgroundColor: "#1E3A8A"}}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2">
           <img src="/farmace-logo.png" alt="Farmace Logo" className="object-contain h-8" style={{width: "149.98px", height: "68.97px"}} />
@@ -80,26 +81,26 @@ const PortalBeneficio = () => {
           </div>
           
           <nav className="hidden md:flex items-center space-x-6">
-            <Button variant="ghost" className="text-white hover:bg-blue-700">
+            <Button variant="ghost" className="text-white hover:bg-white/10">
               <Gift className="w-4 h-4 mr-2" />
               Início
             </Button>
-            <Button variant="ghost" className="text-white hover:bg-blue-700">
+            <Button variant="ghost" className="text-white hover:bg-white/10">
               Solicitar Voucher
             </Button>
-            <Button variant="ghost" className="text-white hover:bg-blue-700">
+            <Button variant="ghost" className="text-white hover:bg-white/10">
               Dashboard RH
             </Button>
-            <Button variant="ghost" className="text-white hover:bg-blue-700">
+            <Button variant="ghost" className="text-white hover:bg-white/10">
               Scanner Parceiro
             </Button>
-            <Button variant="ghost" className="text-white hover:bg-blue-700">
+            <Button variant="ghost" className="text-white hover:bg-white/10">
               Resgates
             </Button>
-            <Button variant="ghost" className="text-white hover:bg-blue-700">
+            <Button variant="ghost" className="text-white hover:bg-white/10">
               Faturas
             </Button>
-            <Button variant="ghost" className="text-white hover:bg-blue-700">
+            <Button variant="ghost" className="text-white hover:bg-white/10">
               Auditoria
             </Button>
           </nav>
@@ -115,7 +116,7 @@ const PortalBeneficio = () => {
           <p className="text-gray-600 mb-6">
             Gerencie seus vouchers de benefícios de forma simples e rápida
           </p>
-          <Button className="bg-blue-100 text-blue-700 hover:bg-blue-200">
+          <Button style={{backgroundColor: "#1E3A8A"}} className="text-white hover:opacity-90">
             <Gift className="w-4 h-4 mr-2" />
             Solicitar Novo Voucher
           </Button>
@@ -124,7 +125,7 @@ const PortalBeneficio = () => {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {statsData.map((stat, index) => (
-            <Card key={index} className={`border-b-4 ${stat.borderColor}`}>
+            <Card key={index} className="border-b-4" style={{borderBottomColor: stat.customBorderColor || ""}}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -132,7 +133,7 @@ const PortalBeneficio = () => {
                     <p className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
                     <p className="text-sm text-gray-500">{stat.description}</p>
                   </div>
-                  <div className={`w-12 h-12 ${stat.color} rounded-full flex items-center justify-center`}>
+                  <div className={`w-12 h-12 ${stat.color} rounded-full flex items-center justify-center`} style={stat.title === "Vouchers Ativos" ? {backgroundColor: "#1E3A8A"} : {}}>
                     <stat.icon className="w-6 h-6 text-white" />
                   </div>
                 </div>
@@ -160,7 +161,7 @@ const PortalBeneficio = () => {
                           <p className="font-bold text-gray-900">{programa.value}</p>
                         </div>
                       </div>
-                      <Button className="bg-blue-600 hover:bg-blue-700">
+                      <Button style={{backgroundColor: "#1E3A8A"}} className="text-white hover:opacity-90">
                         Solicitar
                       </Button>
                     </div>
@@ -174,7 +175,7 @@ const PortalBeneficio = () => {
           <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">Meus Vouchers</h2>
-              <Button variant="ghost" className="text-blue-600 hover:text-blue-700">
+              <Button variant="ghost" style={{color: "#1E3A8A"}} className="hover:opacity-80">
                 Ver Todos
               </Button>
             </div>
@@ -186,7 +187,7 @@ const PortalBeneficio = () => {
                       <div>
                         <div className="flex items-center space-x-2 mb-1">
                           <h3 className="font-semibold text-gray-900">{voucher.title}</h3>
-                          <Badge className={voucher.statusColor}>
+                          <Badge style={{backgroundColor: "#1E3A8A20", color: "#1E3A8A"}}>
                             {voucher.status}
                           </Badge>
                         </div>
