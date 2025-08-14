@@ -48,7 +48,7 @@ const BeneficioFaturas = () => {
     },
     {
       id: 3,
-      parceiro: "DISTRIBUIDORA GÁS BUTANO",
+      parceiro: "Distribuidora Gás Butano",
       referencia: "2024-01",
       qtdVouchers: 5,
       valorTotal: 750.00,
