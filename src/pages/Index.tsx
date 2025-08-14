@@ -56,7 +56,7 @@ const Index = () => {
       icon: Shield
     },
     {
-      title: "Analytics e Inteligência",
+      title: "Indicadores",
       description: "Dashboards, relatórios analíticos e business intelligence",
       icon: BarChart3
     },
