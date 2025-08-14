@@ -7,121 +7,99 @@ import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Header from "@/components/Header";
-
 const ManualGestor = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("sumario");
-
   const manualData = {
     titulo: "Manual Básico de Gestão de Pessoas",
     empresa: "Farmace",
     slogan: "Compromisso com a saúde!",
     data: "Setembro/2024",
     versao: "1.0",
-    secoes: [
-      {
-        id: "introducao",
-        titulo: "Introdução",
-        icone: BookOpen,
-        numero: 1,
-        cor: "bg-slate-600"
-      },
-      {
-        id: "processo_selecao",
-        titulo: "Processo de Seleção",
-        icone: Search,
-        numero: 2,
-        cor: "bg-blue-600"
-      },
-      {
-        id: "processo_contratacao",
-        titulo: "Processo de Contratação",
-        icone: UserPlus,
-        numero: 3,
-        cor: "bg-green-600"
-      },
-      {
-        id: "avaliacao_experiencia",
-        titulo: "Avaliação de Experiência",
-        icone: ClipboardCheck,
-        numero: 4,
-        cor: "bg-purple-600"
-      },
-      {
-        id: "jornada_trabalho",
-        titulo: "Jornada de Trabalho",
-        icone: Clock,
-        numero: 5,
-        cor: "bg-orange-600"
-      },
-      {
-        id: "faltas",
-        titulo: "Faltas",
-        icone: Calendar,
-        numero: 6,
-        cor: "bg-red-600"
-      },
-      {
-        id: "afastamento",
-        titulo: "Afastamento",
-        icone: Stethoscope,
-        numero: 7,
-        cor: "bg-teal-600"
-      },
-      {
-        id: "horas_extras",
-        titulo: "Horas Extras e Ponto",
-        icone: Timer,
-        numero: 8,
-        cor: "bg-indigo-600"
-      },
-      {
-        id: "licencas",
-        titulo: "Licenças",
-        icone: Heart,
-        numero: 9,
-        cor: "bg-pink-600"
-      },
-      {
-        id: "ferias",
-        titulo: "Férias",
-        icone: Plane,
-        numero: 10,
-        cor: "bg-cyan-600"
-      },
-      {
-        id: "medidas_disciplinares",
-        titulo: "Medidas Disciplinares",
-        icone: Scale,
-        numero: 11,
-        cor: "bg-amber-600"
-      },
-      {
-        id: "desligamento",
-        titulo: "Processo de Desligamento",
-        icone: LogOut,
-        numero: 12,
-        cor: "bg-rose-600"
-      },
-      {
-        id: "normas_gerais",
-        titulo: "Normas Gerais",
-        icone: ScrollText,
-        numero: 13,
-        cor: "bg-emerald-600"
-      }
-    ]
+    secoes: [{
+      id: "introducao",
+      titulo: "Introdução",
+      icone: BookOpen,
+      numero: 1,
+      cor: "bg-slate-600"
+    }, {
+      id: "processo_selecao",
+      titulo: "Processo de Seleção",
+      icone: Search,
+      numero: 2,
+      cor: "bg-blue-600"
+    }, {
+      id: "processo_contratacao",
+      titulo: "Processo de Contratação",
+      icone: UserPlus,
+      numero: 3,
+      cor: "bg-green-600"
+    }, {
+      id: "avaliacao_experiencia",
+      titulo: "Avaliação de Experiência",
+      icone: ClipboardCheck,
+      numero: 4,
+      cor: "bg-purple-600"
+    }, {
+      id: "jornada_trabalho",
+      titulo: "Jornada de Trabalho",
+      icone: Clock,
+      numero: 5,
+      cor: "bg-orange-600"
+    }, {
+      id: "faltas",
+      titulo: "Faltas",
+      icone: Calendar,
+      numero: 6,
+      cor: "bg-red-600"
+    }, {
+      id: "afastamento",
+      titulo: "Afastamento",
+      icone: Stethoscope,
+      numero: 7,
+      cor: "bg-teal-600"
+    }, {
+      id: "horas_extras",
+      titulo: "Horas Extras e Ponto",
+      icone: Timer,
+      numero: 8,
+      cor: "bg-indigo-600"
+    }, {
+      id: "licencas",
+      titulo: "Licenças",
+      icone: Heart,
+      numero: 9,
+      cor: "bg-pink-600"
+    }, {
+      id: "ferias",
+      titulo: "Férias",
+      icone: Plane,
+      numero: 10,
+      cor: "bg-cyan-600"
+    }, {
+      id: "medidas_disciplinares",
+      titulo: "Medidas Disciplinares",
+      icone: Scale,
+      numero: 11,
+      cor: "bg-amber-600"
+    }, {
+      id: "desligamento",
+      titulo: "Processo de Desligamento",
+      icone: LogOut,
+      numero: 12,
+      cor: "bg-rose-600"
+    }, {
+      id: "normas_gerais",
+      titulo: "Normas Gerais",
+      icone: ScrollText,
+      numero: 13,
+      cor: "bg-emerald-600"
+    }]
   };
-
-  const renderSumario = () => (
-    <div className="space-y-12">
+  const renderSumario = () => <div className="space-y-12">
       {/* Header com logo e info */}
       <div className="text-center">
-        <div className="flex items-center justify-center mb-8">
-          <div className="w-24 h-24 bg-slate-600 rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-            {manualData.empresa.charAt(0)}
-          </div>
-        </div>
+        
         <h1 className="text-5xl font-bold text-foreground mb-4">{manualData.titulo}</h1>
         <p className="text-2xl text-slate-600 mb-2">{manualData.empresa}</p>
         <p className="text-xl text-muted-foreground italic mb-6">{manualData.slogan}</p>
@@ -140,14 +118,9 @@ const ManualGestor = () => {
         <CardContent className="p-10">
           <h2 className="text-3xl font-bold mb-10 text-center text-foreground">Índice de Conteúdo</h2>
           <div className="grid gap-3 max-w-4xl mx-auto">
-            {manualData.secoes.map((secao) => {
-              const IconComponent = secao.icone;
-              return (
-                <div 
-                  key={secao.id}
-                  onClick={() => setActiveSection(secao.id)}
-                  className="flex items-center justify-between p-6 rounded-xl hover:bg-muted/50 cursor-pointer transition-all duration-200 group border border-transparent hover:border-muted-foreground/20"
-                >
+            {manualData.secoes.map(secao => {
+            const IconComponent = secao.icone;
+            return <div key={secao.id} onClick={() => setActiveSection(secao.id)} className="flex items-center justify-between p-6 rounded-xl hover:bg-muted/50 cursor-pointer transition-all duration-200 group border border-transparent hover:border-muted-foreground/20">
                   <div className="flex items-center space-x-6">
                     <div className={`w-14 h-14 ${secao.cor} rounded-lg flex items-center justify-center text-white shadow-md`}>
                       <IconComponent className="h-7 w-7" />
@@ -162,17 +135,13 @@ const ManualGestor = () => {
                     </div>
                   </div>
                   <div className="w-12 h-[2px] bg-muted-foreground/20 group-hover:bg-slate-400 transition-colors"></div>
-                </div>
-              );
-            })}
+                </div>;
+          })}
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
-
-  const renderIntroducao = () => (
-    <div className="space-y-8">
+    </div>;
+  const renderIntroducao = () => <div className="space-y-8">
       <div className="flex items-center justify-center mb-12">
         <div className="flex items-center space-x-6">
           <div className="w-20 h-20 bg-slate-600 rounded-xl flex items-center justify-center text-white shadow-lg">
@@ -200,33 +169,21 @@ const ManualGestor = () => {
             <div className="bg-slate-50 p-8 rounded-xl">
               <h4 className="text-xl font-semibold text-foreground mb-6">Como usar este manual</h4>
               <div className="space-y-4">
-                {[
-                  "Navegue pelos tópicos usando o menu superior",
-                  "Cada seção contém fluxogramas e procedimentos detalhados",
-                  "Os anexos mencionados devem ser solicitados ao RH",
-                  "Em caso de dúvidas, consulte sempre o departamento de RH"
-                ].map((item, index) => (
-                  <div key={index} className="flex items-start space-x-3">
+                {["Navegue pelos tópicos usando o menu superior", "Cada seção contém fluxogramas e procedimentos detalhados", "Os anexos mencionados devem ser solicitados ao RH", "Em caso de dúvidas, consulte sempre o departamento de RH"].map((item, index) => <div key={index} className="flex items-start space-x-3">
                     <CheckCircle2 className="h-5 w-5 text-slate-600 flex-shrink-0 mt-0.5" />
                     <span className="text-muted-foreground leading-relaxed">{item}</span>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
-
+    </div>;
   const renderSecao = (secaoId: string) => {
     const secao = manualData.secoes.find(s => s.id === secaoId);
     if (!secao) return null;
-
     const IconComponent = secao.icone;
-
-    return (
-      <div className="space-y-8">
+    return <div className="space-y-8">
         <div className="flex items-center justify-center mb-12">
           <div className="flex items-center space-x-6">
             <div className={`w-20 h-20 ${secao.cor} rounded-xl flex items-center justify-center text-white shadow-lg`}>
@@ -240,8 +197,7 @@ const ManualGestor = () => {
         </div>
 
         {/* Conteúdo da seção baseado no JSON */}
-        {secaoId === "processo_contratacao" && (
-          <div className="space-y-8">
+        {secaoId === "processo_contratacao" && <div className="space-y-8">
             <Card className="border-0 shadow-sm">
               <CardContent className="p-8">
                 <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -274,34 +230,33 @@ const ManualGestor = () => {
                     </div>
                     
                     <div className="space-y-6">
-                      {[
-                        { texto: "Assinatura de Dr. Salviano validando contratação", responsavel: "GESTOR", cor: "slate" },
-                        { texto: "Solicitação de documentação", responsavel: "RH", cor: "blue" },
-                        { texto: "Integração", responsavel: "RH + GESTOR", cor: "purple" },
-                        { texto: "Exame admissional e início", responsavel: "CANDIDATO", cor: "green" }
-                      ].map((item, index) => (
-                        <div key={index} className="flex items-start space-x-4">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 ${
-                            item.cor === 'slate' ? 'bg-slate-500' :
-                            item.cor === 'blue' ? 'bg-blue-500' :
-                            item.cor === 'purple' ? 'bg-purple-500' :
-                            'bg-green-500'
-                          }`}>
+                      {[{
+                    texto: "Assinatura de Dr. Salviano validando contratação",
+                    responsavel: "GESTOR",
+                    cor: "slate"
+                  }, {
+                    texto: "Solicitação de documentação",
+                    responsavel: "RH",
+                    cor: "blue"
+                  }, {
+                    texto: "Integração",
+                    responsavel: "RH + GESTOR",
+                    cor: "purple"
+                  }, {
+                    texto: "Exame admissional e início",
+                    responsavel: "CANDIDATO",
+                    cor: "green"
+                  }].map((item, index) => <div key={index} className="flex items-start space-x-4">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 ${item.cor === 'slate' ? 'bg-slate-500' : item.cor === 'blue' ? 'bg-blue-500' : item.cor === 'purple' ? 'bg-purple-500' : 'bg-green-500'}`}>
                             {index + 1}
                           </div>
                           <div>
                             <p className="font-medium text-foreground leading-snug">{item.texto}</p>
-                            <p className={`text-sm font-medium mt-1 ${
-                              item.cor === 'slate' ? 'text-slate-600' :
-                              item.cor === 'blue' ? 'text-blue-600' :
-                              item.cor === 'purple' ? 'text-purple-600' :
-                              'text-green-600'
-                            }`}>
+                            <p className={`text-sm font-medium mt-1 ${item.cor === 'slate' ? 'text-slate-600' : item.cor === 'blue' ? 'text-blue-600' : item.cor === 'purple' ? 'text-purple-600' : 'text-green-600'}`}>
                               {item.responsavel}
                             </p>
                           </div>
-                        </div>
-                      ))}
+                        </div>)}
                     </div>
                   </div>
                 </div>
@@ -315,33 +270,35 @@ const ManualGestor = () => {
                 <div className="flex items-center justify-between relative max-w-4xl mx-auto">
                   <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-slate-200 -translate-y-1/2 z-0"></div>
                   
-                  {[
-                    { titulo: "Aprovação", dias: "Dia 0", cor: "slate" },
-                    { titulo: "Documentação", dias: "Dias 1-5", cor: "blue" },
-                    { titulo: "Integração", dias: "Dias 6-10", cor: "purple" },
-                    { titulo: "Início", dias: "Até dia 15", cor: "green" }
-                  ].map((etapa, index) => (
-                    <div key={index} className="flex flex-col items-center relative z-10 bg-background px-4">
-                      <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white font-semibold shadow-lg ${
-                        etapa.cor === 'slate' ? 'bg-slate-500' :
-                        etapa.cor === 'blue' ? 'bg-blue-500' :
-                        etapa.cor === 'purple' ? 'bg-purple-500' :
-                        'bg-green-500'
-                      }`}>
+                  {[{
+                titulo: "Aprovação",
+                dias: "Dia 0",
+                cor: "slate"
+              }, {
+                titulo: "Documentação",
+                dias: "Dias 1-5",
+                cor: "blue"
+              }, {
+                titulo: "Integração",
+                dias: "Dias 6-10",
+                cor: "purple"
+              }, {
+                titulo: "Início",
+                dias: "Até dia 15",
+                cor: "green"
+              }].map((etapa, index) => <div key={index} className="flex flex-col items-center relative z-10 bg-background px-4">
+                      <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white font-semibold shadow-lg ${etapa.cor === 'slate' ? 'bg-slate-500' : etapa.cor === 'blue' ? 'bg-blue-500' : etapa.cor === 'purple' ? 'bg-purple-500' : 'bg-green-500'}`}>
                         {index + 1}
                       </div>
                       <h4 className="font-semibold text-foreground mt-4 text-center text-sm">{etapa.titulo}</h4>
                       <p className="text-xs text-muted-foreground text-center mt-1">{etapa.dias}</p>
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
               </CardContent>
             </Card>
-          </div>
-        )}
+          </div>}
         
-        {secaoId === "processo_selecao" && (
-          <div className="space-y-8">
+        {secaoId === "processo_selecao" && <div className="space-y-8">
             <Card className="border-0 shadow-sm">
               <CardContent className="p-8">
                 <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
@@ -365,21 +322,12 @@ const ManualGestor = () => {
                     <h3 className="text-xl font-semibold text-foreground">Vagas de Aumento de Quadro</h3>
                   </div>
                   <div className="space-y-4">
-                    {[
-                      "Autorização por escrito, assinada pelo gestor, Horaci e Dr. Salviano (Anexo A)",
-                      "Alinhamento de perfil",
-                      "Processo seletivo",
-                      "Entrevista com o gestor",
-                      "Fechamento do salário com Dr. Salviano",
-                      "Fechamento da contratação"
-                    ].map((item, index) => (
-                      <div key={index} className="flex items-start space-x-3">
+                    {["Autorização por escrito, assinada pelo gestor, Horaci e Dr. Salviano (Anexo A)", "Alinhamento de perfil", "Processo seletivo", "Entrevista com o gestor", "Fechamento do salário com Dr. Salviano", "Fechamento da contratação"].map((item, index) => <div key={index} className="flex items-start space-x-3">
                         <div className="bg-green-100 text-green-600 rounded-full w-7 h-7 flex items-center justify-center text-sm font-semibold flex-shrink-0 mt-0.5">
                           {index + 1}
                         </div>
                         <p className="text-muted-foreground leading-relaxed">{item}</p>
-                      </div>
-                    ))}
+                      </div>)}
                   </div>
                 </CardContent>
               </Card>
@@ -391,45 +339,27 @@ const ManualGestor = () => {
                     <h3 className="text-xl font-semibold text-foreground">Vagas de Substituição</h3>
                   </div>
                   <div className="space-y-4">
-                    {[
-                      "Autorização por escrito, assinada pelo gestor e Horaci (Anexo A)",
-                      "Alinhamento de perfil",
-                      "Processo seletivo",
-                      "Entrevista com o gestor",
-                      "Fechamento do salário com Dr. Salviano",
-                      "Fechamento da contratação"
-                    ].map((item, index) => (
-                      <div key={index} className="flex items-start space-x-3">
+                    {["Autorização por escrito, assinada pelo gestor e Horaci (Anexo A)", "Alinhamento de perfil", "Processo seletivo", "Entrevista com o gestor", "Fechamento do salário com Dr. Salviano", "Fechamento da contratação"].map((item, index) => <div key={index} className="flex items-start space-x-3">
                         <div className="bg-blue-100 text-blue-600 rounded-full w-7 h-7 flex items-center justify-center text-sm font-semibold flex-shrink-0 mt-0.5">
                           {index + 1}
                         </div>
                         <p className="text-muted-foreground leading-relaxed">{item}</p>
-                      </div>
-                    ))}
+                      </div>)}
                   </div>
                 </CardContent>
               </Card>
             </div>
-          </div>
-        )}
-      </div>
-    );
+          </div>}
+      </div>;
   };
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Header />
       
       <main className="container mx-auto px-6 py-8 max-w-7xl">
         {/* Header Section */}
         <div className="flex items-center justify-between mb-12">
           <div className="flex items-center space-x-4">
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => navigate("/")}
-              className="h-10 w-10"
-            >
+            <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="h-10 w-10">
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
@@ -457,30 +387,17 @@ const ManualGestor = () => {
 
         {/* Navigation Pills */}
         <div className="flex flex-wrap gap-3 mb-12 p-1 bg-muted/30 rounded-lg">
-          <Button
-            variant={activeSection === "sumario" ? "default" : "ghost"}
-            onClick={() => setActiveSection("sumario")}
-            size="sm"
-            className="h-9"
-          >
+          <Button variant={activeSection === "sumario" ? "default" : "ghost"} onClick={() => setActiveSection("sumario")} size="sm" className="h-9">
             <Home className="h-4 w-4 mr-2" />
             Sumário
           </Button>
-          {manualData.secoes.map((secao) => {
-            const IconComponent = secao.icone;
-            return (
-              <Button
-                key={secao.id}
-                variant={activeSection === secao.id ? "default" : "ghost"}
-                onClick={() => setActiveSection(secao.id)}
-                size="sm"
-                className="h-9"
-              >
+          {manualData.secoes.map(secao => {
+          const IconComponent = secao.icone;
+          return <Button key={secao.id} variant={activeSection === secao.id ? "default" : "ghost"} onClick={() => setActiveSection(secao.id)} size="sm" className="h-9">
                 <IconComponent className="h-4 w-4 mr-2" />
                 {secao.titulo}
-              </Button>
-            );
-          })}
+              </Button>;
+        })}
         </div>
 
         {/* Content */}
@@ -488,8 +405,6 @@ const ManualGestor = () => {
         {activeSection === "introducao" && renderIntroducao()}
         {activeSection !== "sumario" && activeSection !== "introducao" && renderSecao(activeSection)}
       </main>
-    </div>
-  );
+    </div>;
 };
-
 export default ManualGestor;
