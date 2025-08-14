@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 const Header = () => {
+  const navigate = useNavigate();
   return <header className="bg-card border-b border-border/50 px-6 py-4">
       <div className="flex items-center justify-between">
         {/* Logo e Title */}
@@ -37,7 +39,7 @@ const Header = () => {
             </Badge>
           </Button>
           
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/configuracao')}>
             <Settings className="h-5 w-5" />
           </Button>
 
