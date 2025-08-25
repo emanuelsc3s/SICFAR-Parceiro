@@ -430,51 +430,75 @@ const ComunicacaoAdmin = () => {
               {noticiasFiltradas.map((noticia) => (
                 <Card key={noticia.id}>
                   <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex gap-2">
-                        <Badge variant="outline">{noticia.categoria}</Badge>
-                        <Badge className={getStatusColor(noticia.status)}>
-                          {noticia.status}
-                        </Badge>
-                        <Badge className={getPrioridadeColor(noticia.prioridade)}>
-                          {noticia.prioridade}
-                        </Badge>
+                    <div className="flex gap-4">
+                      {/* Imagem de Capa */}
+                      {noticia.imagem && (
+                        <div className="flex-shrink-0 w-48 h-32">
+                          <div className="w-full h-full rounded-lg overflow-hidden bg-muted">
+                            <img 
+                              src={noticia.imagem} 
+                              alt={`Capa da notícia: ${noticia.titulo}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Conteúdo da Notícia */}
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex gap-2">
+                            <Badge variant="outline">{noticia.categoria}</Badge>
+                            <Badge className={getStatusColor(noticia.status)}>
+                              {noticia.status}
+                            </Badge>
+                            <Badge className={getPrioridadeColor(noticia.prioridade)}>
+                              {noticia.prioridade}
+                            </Badge>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditar(noticia);
+                              }}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeletar(noticia.id);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <h3 className="text-lg font-semibold mb-2">{noticia.titulo}</h3>
+                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                          {noticia.resumo}
+                        </p>
+                        
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <div className="flex gap-4">
+                            <span>Por: {noticia.autor}</span>
+                            <span>Criado: {formatarData(noticia.dataCriacao)}</span>
+                            {noticia.dataAtualizacao !== noticia.dataCriacao && (
+                              <span>Atualizado: {formatarData(noticia.dataAtualizacao)}</span>
+                            )}
+                          </div>
+                          <span className="flex items-center gap-1">
+                            <Eye className="h-3 w-3" />
+                            {noticia.visualizacoes}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleEditar(noticia)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleDeletar(noticia.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    <h3 className="text-lg font-semibold mb-2">{noticia.titulo}</h3>
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                      {noticia.resumo}
-                    </p>
-                    
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <div className="flex gap-4">
-                        <span>Por: {noticia.autor}</span>
-                        <span>Criado: {formatarData(noticia.dataCriacao)}</span>
-                        {noticia.dataAtualizacao !== noticia.dataCriacao && (
-                          <span>Atualizado: {formatarData(noticia.dataAtualizacao)}</span>
-                        )}
-                      </div>
-                      <span className="flex items-center gap-1">
-                        <Eye className="h-3 w-3" />
-                        {noticia.visualizacoes}
-                      </span>
                     </div>
                   </CardContent>
                 </Card>
