@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Edit, Trash2, Eye, Search, FileText } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { ArrowLeft, Plus, Edit, Trash2, Eye, Search, FileText, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,10 +17,12 @@ import { useToast } from '@/hooks/use-toast';
 const ComunicacaoAdmin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [noticias, setNoticias] = useState<NoticiaInterna[]>([]);
   const [busca, setBusca] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [noticiaEditando, setNoticiaEditando] = useState<NoticiaInterna | null>(null);
+  const [imagemPreview, setImagemPreview] = useState<string>('');
   const [formData, setFormData] = useState({
     titulo: '',
     resumo: '',
@@ -28,7 +30,8 @@ const ComunicacaoAdmin = () => {
     categoria: 'Comunicados' as 'RH' | 'TI' | 'Corporativo' | 'Comunicados' | 'Eventos',
     prioridade: 'media' as 'baixa' | 'media' | 'alta',
     status: 'rascunho' as 'rascunho' | 'publicado' | 'arquivado',
-    autor: 'Administrador'
+    autor: 'Administrador',
+    imagem: ''
   });
 
   useEffect(() => {
@@ -56,9 +59,11 @@ const ComunicacaoAdmin = () => {
       categoria: 'Comunicados' as 'RH' | 'TI' | 'Corporativo' | 'Comunicados' | 'Eventos',
       prioridade: 'media' as 'baixa' | 'media' | 'alta',
       status: 'rascunho' as 'rascunho' | 'publicado' | 'arquivado',
-      autor: 'Administrador'
+      autor: 'Administrador',
+      imagem: ''
     });
     setNoticiaEditando(null);
+    setImagemPreview('');
   };
 
   const handleSalvar = () => {
@@ -81,6 +86,7 @@ const ComunicacaoAdmin = () => {
       prioridade: formData.prioridade,
       status: formData.status,
       autor: formData.autor,
+      imagem: formData.imagem,
       dataPublicacao: (formData.status === 'publicado' && !noticiaEditando) ? agora : (noticiaEditando?.dataPublicacao || agora),
       dataCriacao: noticiaEditando?.dataCriacao || agora,
       dataAtualizacao: agora,
@@ -107,8 +113,10 @@ const ComunicacaoAdmin = () => {
       categoria: noticia.categoria,
       prioridade: noticia.prioridade,
       status: noticia.status,
-      autor: noticia.autor
+      autor: noticia.autor,
+      imagem: noticia.imagem || ''
     });
+    setImagemPreview(noticia.imagem || '');
     setIsDialogOpen(true);
   };
 
@@ -142,6 +150,47 @@ const ComunicacaoAdmin = () => {
 
   const formatarData = (data: string) => {
     return new Date(data).toLocaleString('pt-BR');
+  };
+
+  const handleImagemUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Verificar se é uma imagem
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Erro",
+          description: "Por favor, selecione apenas arquivos de imagem.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Verificar tamanho (máx 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "Erro",
+          description: "A imagem deve ter no máximo 5MB.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64 = e.target?.result as string;
+        setImagemPreview(base64);
+        setFormData({...formData, imagem: base64});
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoverImagem = () => {
+    setImagemPreview('');
+    setFormData({...formData, imagem: ''});
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   return (
@@ -222,6 +271,61 @@ const ComunicacaoAdmin = () => {
                       placeholder="Conteúdo completo da notícia"
                       rows={6}
                     />
+                  </div>
+
+                  <div>
+                    <Label>Imagem de Capa</Label>
+                    <div className="space-y-2">
+                      {imagemPreview ? (
+                        <div className="relative">
+                          <div className="relative w-full h-48 rounded-lg border border-border overflow-hidden bg-muted">
+                            <img 
+                              src={imagemPreview} 
+                              alt="Preview da imagem de capa"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="flex gap-2 mt-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => fileInputRef.current?.click()}
+                            >
+                              <ImageIcon className="h-4 w-4 mr-2" />
+                              Alterar Imagem
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={handleRemoverImagem}
+                            >
+                              <X className="h-4 w-4 mr-2" />
+                              Remover
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div 
+                          className="relative w-full h-48 rounded-lg border-2 border-dashed border-border hover:border-primary cursor-pointer bg-muted/30 hover:bg-muted/50 transition-colors"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                            <Upload className="h-8 w-8 mb-2" />
+                            <p className="text-sm font-medium">Clique para adicionar uma imagem</p>
+                            <p className="text-xs">PNG, JPG até 5MB</p>
+                          </div>
+                        </div>
+                      )}
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImagemUpload}
+                        className="hidden"
+                      />
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
