@@ -169,6 +169,8 @@ const SolicitarBeneficio = () => {
                     setActiveButton(button.name);
                     if (button.name === "Faturas") {
                       navigate("/beneficiofaturas");
+                    } else if (button.name === "Início") {
+                      navigate("/");
                     }
                   }}
                 >
