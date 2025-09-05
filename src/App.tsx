@@ -17,6 +17,7 @@ import NoticiasExternas from "./pages/NoticiasExternas";
 import Comunicacao from "./pages/Comunicacao";
 import ComunicacaoAdmin from "./pages/ComunicacaoAdmin";
 import NotFound from "./pages/NotFound";
+import ScannerParceiro from "./pages/ScannerParceiro";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/noticiasexternas" element={<NoticiasExternas />} />
           <Route path="/comunicacao" element={<Comunicacao />} />
           <Route path="/comunicacao/admin" element={<ComunicacaoAdmin />} />
+          <Route path="/scannerparceiro" element={<ScannerParceiro />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
