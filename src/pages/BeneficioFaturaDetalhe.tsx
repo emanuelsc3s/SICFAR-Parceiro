@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { 
+import {
   ArrowLeft,
-  Search, 
-  DollarSign, 
+  Search,
+  DollarSign,
   Calendar,
   User,
   FileText,
@@ -38,6 +38,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { buscarVouchersPorParceiro } from "@/utils/voucherStorage";
 
 const BeneficioFaturaDetalhe = () => {
   const { faturaId } = useParams();
@@ -45,8 +46,9 @@ const BeneficioFaturaDetalhe = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [motivoContestacao, setMotivoContestacao] = useState("");
+  const [vouchers, setVouchers] = useState<any[]>([]);
 
-  // Dados mockados da fatura específica
+  // Dados mockados da fatura específica - Apenas Farmacia Santa Cecilia
   const [faturaInfo, setFaturaInfo] = useState({
     1: {
       parceiro: "Farmacia Santa Cecilia",
@@ -54,163 +56,89 @@ const BeneficioFaturaDetalhe = () => {
       valorTotal: 1500.00,
       status: "Em Revisão",
       dataCriacao: "31/01/2024"
-    },
-    2: {
-      parceiro: "Farmacia Gentil", 
-      referencia: "2024-01",
-      valorTotal: 2400.00,
-      status: "Aprovada",
-      dataCriacao: "30/01/2024"
-    },
-    3: {
-      parceiro: "Distribuidora Gás Butano",
-      referencia: "2024-01", 
-      valorTotal: 750.00,
-      status: "Contestada",
-      dataCriacao: "29/01/2024"
     }
   });
 
-  // Dados mockados dos vouchers por fatura
-  const vouchersPorFatura = {
-    1: [
-      {
-        id: "VCH-00154832",
-        funcionario: "Ana Silva Santos",
-        cpf: "123.456.789-00",
-        valor: 500.00,
-        dataResgate: "15/01/2024",
-        horaResgate: "14:30"
-      },
-      {
-        id: "VCH-00154833", 
-        funcionario: "Carlos Eduardo Lima",
-        cpf: "987.654.321-00",
-        valor: 500.00,
-        dataResgate: "16/01/2024",
-        horaResgate: "10:15"
-      },
-      {
-        id: "VCH-00154834",
-        funcionario: "Maria José Oliveira", 
-        cpf: "456.789.123-00",
-        valor: 500.00,
-        dataResgate: "18/01/2024",
-        horaResgate: "16:45"
-      }
-    ],
-    2: [
-      {
-        id: "VCH-00154835",
-        funcionario: "João Pedro Souza",
-        cpf: "321.654.987-00", 
-        valor: 300.00,
-        dataResgate: "12/01/2024",
-        horaResgate: "09:20"
-      },
-      {
-        id: "VCH-00154836",
-        funcionario: "Fernanda Costa Alves",
-        cpf: "789.123.456-00",
-        valor: 300.00,
-        dataResgate: "14/01/2024", 
-        horaResgate: "11:30"
-      },
-      {
-        id: "VCH-00154837",
-        funcionario: "Roberto Silva Nunes",
-        cpf: "159.753.486-00",
-        valor: 300.00,
-        dataResgate: "15/01/2024",
-        horaResgate: "13:15"
-      },
-      {
-        id: "VCH-00154838",
-        funcionario: "Juliana Santos Lima",
-        cpf: "654.987.321-00",
-        valor: 300.00,
-        dataResgate: "17/01/2024",
-        horaResgate: "15:45"
-      },
-      {
-        id: "VCH-00154839",
-        funcionario: "André Oliveira Costa",
-        cpf: "852.741.963-00",
-        valor: 300.00,
-        dataResgate: "19/01/2024",
-        horaResgate: "08:30"
-      },
-      {
-        id: "VCH-00154840",
-        funcionario: "Patricia Lima Santos",
-        cpf: "741.852.963-00",
-        valor: 300.00,
-        dataResgate: "20/01/2024",
-        horaResgate: "12:00"
-      },
-      {
-        id: "VCH-00154841",
-        funcionario: "Ricardo Souza Alves",
-        cpf: "963.852.741-00",
-        valor: 300.00,
-        dataResgate: "22/01/2024",
-        horaResgate: "17:20"
-      },
-      {
-        id: "VCH-00154842",
-        funcionario: "Camila Costa Oliveira",
-        cpf: "147.258.369-00",
-        valor: 300.00,
-        dataResgate: "25/01/2024",
-        horaResgate: "14:10"
-      }
-    ],
-    3: [
-      {
-        id: "VCH-00154843",
-        funcionario: "Eduardo Santos Silva",
-        cpf: "258.369.147-00",
-        valor: 150.00,
-        dataResgate: "10/01/2024",
-        horaResgate: "10:00"
-      },
-      {
-        id: "VCH-00154844", 
-        funcionario: "Luciana Alves Costa",
-        cpf: "369.147.258-00",
-        valor: 150.00,
-        dataResgate: "11/01/2024",
-        horaResgate: "16:30"
-      },
-      {
-        id: "VCH-00154845",
-        funcionario: "Marcos Lima Souza",
-        cpf: "147.369.258-00",
-        valor: 150.00,
-        dataResgate: "13/01/2024",
-        horaResgate: "09:45"
-      },
-      {
-        id: "VCH-00154846",
-        funcionario: "Gabriela Costa Santos",
-        cpf: "258.147.369-00",
-        valor: 150.00,
-        dataResgate: "16/01/2024",
-        horaResgate: "11:15"
-      },
-      {
-        id: "VCH-00154847",
-        funcionario: "Felipe Oliveira Lima",
-        cpf: "369.258.147-00",
-        valor: 150.00,
-        dataResgate: "21/01/2024",
-        horaResgate: "15:00"
-      }
-    ]
-  };
+  // Dados mockados de fallback (caso não haja vouchers no localStorage)
+  const vouchersMockados = [
+    {
+      id: "VCH-00154832",
+      funcionario: "Ana Silva Santos",
+      cpf: "123.456.789-00",
+      valor: 500.00,
+      dataResgate: "15/01/2024",
+      horaResgate: "14:30"
+    },
+    {
+      id: "VCH-00154833",
+      funcionario: "Carlos Eduardo Lima",
+      cpf: "987.654.321-00",
+      valor: 500.00,
+      dataResgate: "16/01/2024",
+      horaResgate: "10:15"
+    },
+    {
+      id: "VCH-00154834",
+      funcionario: "Maria José Oliveira",
+      cpf: "456.789.123-00",
+      valor: 500.00,
+      dataResgate: "18/01/2024",
+      horaResgate: "16:45"
+    }
+  ];
 
   const fatura = faturaInfo[Number(faturaId) as keyof typeof faturaInfo];
-  const vouchers = vouchersPorFatura[Number(faturaId) as keyof typeof vouchersPorFatura] || [];
+
+  // Carregar vouchers do localStorage quando o componente montar ou faturaId mudar
+  useEffect(() => {
+    const carregarVouchers = () => {
+      if (Number(faturaId) === 1) {
+        // Buscar vouchers da Farmacia Santa Cecilia no localStorage
+        const vouchersLocalStorage = buscarVouchersPorParceiro("Farmacia Santa Cecilia");
+
+        // Também buscar por variações do nome
+        const vouchersVariacao1 = buscarVouchersPorParceiro("Vale Farmácia Santa Cecília");
+        const vouchersVariacao2 = buscarVouchersPorParceiro("Farmácia Santa Cecília");
+
+        // Combinar todos os vouchers encontrados
+        const todosVouchers = [
+          ...vouchersLocalStorage,
+          ...vouchersVariacao1,
+          ...vouchersVariacao2
+        ];
+
+        // Remover duplicatas baseado no ID
+        const vouchersUnicos = todosVouchers.filter((voucher, index, self) =>
+          index === self.findIndex((v) => v.id === voucher.id)
+        );
+
+        if (vouchersUnicos.length > 0) {
+          console.log(`✅ ${vouchersUnicos.length} vouchers carregados do localStorage para Farmacia Santa Cecilia`);
+          setVouchers(vouchersUnicos);
+        } else {
+          console.log('⚠️ Nenhum voucher encontrado no localStorage. Usando dados mockados.');
+          setVouchers(vouchersMockados);
+        }
+      } else {
+        // Para outras faturas (se houver no futuro), usar array vazio
+        setVouchers([]);
+      }
+    };
+
+    carregarVouchers();
+
+    // Configurar listener para atualizar quando novos vouchers forem emitidos
+    const handleVoucherEmitido = () => {
+      console.log('🔄 Novo voucher emitido, recarregando lista...');
+      carregarVouchers();
+    };
+
+    window.addEventListener('voucherEmitido', handleVoucherEmitido);
+
+    return () => {
+      window.removeEventListener('voucherEmitido', handleVoucherEmitido);
+    };
+  }, [faturaId]);
 
   const handleContestFatura = () => {
     setDialogOpen(true);
@@ -506,12 +434,22 @@ const BeneficioFaturaDetalhe = () => {
                         R$ {voucher.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center">
-                          <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
-                          {voucher.dataResgate}
-                        </div>
+                        {voucher.dataResgate ? (
+                          <div className="flex items-center">
+                            <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
+                            {voucher.dataResgate}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground italic">-</span>
+                        )}
                       </TableCell>
-                      <TableCell>{voucher.horaResgate}</TableCell>
+                      <TableCell>
+                        {voucher.horaResgate ? (
+                          voucher.horaResgate
+                        ) : (
+                          <span className="text-muted-foreground italic">-</span>
+                        )}
+                      </TableCell>
                     </TableRow>
                   ))}
                   {filteredVouchers.length === 0 && (

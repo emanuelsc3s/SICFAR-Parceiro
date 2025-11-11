@@ -331,9 +331,9 @@ const ComunicacaoAdmin = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Categoria</Label>
-                      <Select 
-                        value={formData.categoria} 
-                        onValueChange={(value: any) => setFormData({...formData, categoria: value})}
+                      <Select
+                        value={formData.categoria}
+                        onValueChange={(value: string) => setFormData({...formData, categoria: value})}
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -350,9 +350,9 @@ const ComunicacaoAdmin = () => {
 
                     <div>
                       <Label>Prioridade</Label>
-                      <Select 
-                        value={formData.prioridade} 
-                        onValueChange={(value: any) => setFormData({...formData, prioridade: value})}
+                      <Select
+                        value={formData.prioridade}
+                        onValueChange={(value: string) => setFormData({...formData, prioridade: value})}
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -369,9 +369,9 @@ const ComunicacaoAdmin = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Status</Label>
-                      <Select 
-                        value={formData.status} 
-                        onValueChange={(value: any) => setFormData({...formData, status: value})}
+                      <Select
+                        value={formData.status}
+                        onValueChange={(value: string) => setFormData({...formData, status: value})}
                       >
                         <SelectTrigger>
                           <SelectValue />

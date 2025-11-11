@@ -1,20 +1,133 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { User, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import funcionariosData from "../../data/funcionarios.json";
+
+// Interface para os dados do funcionário
+interface Funcionario {
+  MATRICULA: string;
+  NOME: string;
+  CPF: string;
+  NASCIMENTO: string;
+  EMAIL: string;
+}
+
+// Função para gerar a senha esperada baseada no CPF e data de nascimento
+const gerarSenha = (cpf: string, dataNascimento: string): string => {
+  // Pega os 3 últimos dígitos do CPF
+  const ultimosDigitosCPF = cpf.slice(-3);
+
+  // Extrai dia e mês da data de nascimento (formato: DD.MM.YYYY HH:MM)
+  const [dia, mes] = dataNascimento.split('.');
+  const ddmm = `${dia}${mes}`;
+
+  return `${ultimosDigitosCPF}${ddmm}`;
+};
+
+// Função para normalizar matrícula (remove zeros à esquerda)
+const normalizarMatricula = (matricula: string): string => {
+  return matricula.replace(/^0+/, '') || '0';
+};
+
+// Função para normalizar CPF (remove pontos, traços e espaços)
+const normalizarCPF = (cpf: string): string => {
+  return cpf.replace(/[.\-\s]/g, '');
+};
+
+// Função para detectar se o input é CPF ou matrícula
+const detectarTipoInput = (input: string): 'cpf' | 'matricula' => {
+  const inputLimpo = input.replace(/[.\-\s]/g, '');
+
+  // Se tem 11 dígitos numéricos, é CPF
+  if (/^\d{11}$/.test(inputLimpo)) {
+    return 'cpf';
+  }
+
+  // Caso contrário, é matrícula
+  return 'matricula';
+};
+
+// Função para buscar funcionário por matrícula OU CPF
+const buscarFuncionario = (input: string, funcionarios: Funcionario[]): Funcionario | undefined => {
+  const tipoInput = detectarTipoInput(input);
+
+  if (tipoInput === 'cpf') {
+    // Busca por CPF
+    const cpfNormalizado = normalizarCPF(input);
+    return funcionarios.find(f => normalizarCPF(f.CPF) === cpfNormalizado);
+  } else {
+    // Busca por matrícula
+    const matriculaNormalizada = normalizarMatricula(input);
+    return funcionarios.find(f => {
+      const matriculaFuncionarioNormalizada = normalizarMatricula(f.MATRICULA);
+      return matriculaFuncionarioNormalizada === matriculaNormalizada;
+    });
+  }
+};
 
 const Login = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
+  const [matriculaOuCpf, setMatriculaOuCpf] = useState("");
   const [password, setPassword] = useState("");
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Lógica de autenticação será implementada posteriormente
-    console.log("Login attempt:", { email, password });
+
+    // Remove espaços em branco
+    const inputDigitado = matriculaOuCpf.trim();
+    const senhaDigitada = password.trim();
+
+    // Busca o funcionário no JSON (por matrícula OU CPF)
+    const funcionarios = funcionariosData.RecordSet as Funcionario[];
+    const funcionario = buscarFuncionario(inputDigitado, funcionarios);
+
+    if (!funcionario) {
+      // Matrícula ou CPF não encontrado
+      setShowErrorDialog(true);
+      return;
+    }
+
+    // Gera a senha esperada baseada no CPF e data de nascimento
+    const senhaEsperada = gerarSenha(funcionario.CPF, funcionario.NASCIMENTO);
+
+    if (senhaDigitada === senhaEsperada) {
+      // Login bem-sucedido
+      const tipoLogin = detectarTipoInput(inputDigitado);
+      console.log("✅ Login bem-sucedido:", funcionario.NOME, "| Email:", funcionario.EMAIL, "| Tipo de login:", tipoLogin === 'cpf' ? 'CPF' : 'Matrícula');
+
+      // Salva os dados do colaborador no localStorage
+      const colaboradorData = {
+        matricula: funcionario.MATRICULA,
+        nome: funcionario.NOME,
+        cpf: funcionario.CPF,
+        dataNascimento: funcionario.NASCIMENTO,
+        email: funcionario.EMAIL || '',
+        loginTimestamp: new Date().toISOString()
+      };
+
+      localStorage.setItem('colaboradorLogado', JSON.stringify(colaboradorData));
+
+      // Redireciona para página de solicitar benefício
+      navigate('/solicitarbeneficio');
+    } else {
+      // Senha incorreta
+      console.log("❌ Senha incorreta. Esperada:", senhaEsperada, "Digitada:", senhaDigitada);
+      setShowErrorDialog(true);
+    }
   };
 
   return (
@@ -123,10 +236,10 @@ const Login = () => {
               </div>
             </div>
             <h2 className="text-xl font-semibold text-foreground mb-2">
-              Login com seu e-mail
+              Acesse sua conta
             </h2>
             <p className="text-sm text-muted-foreground">
-              Acesse o portal corporativo
+              Entre com sua matrícula ou CPF
             </p>
           </div>
 
@@ -134,19 +247,19 @@ const Login = () => {
           <Card className="border-border/50 shadow-lg">
             <CardContent className="pt-6">
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Campo de E-mail */}
+                {/* Campo de Matrícula ou CPF */}
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-foreground">
-                    E-mail
+                  <Label htmlFor="matriculaOuCpf" className="text-foreground">
+                    Matrícula ou CPF
                   </Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                     <Input
-                      id="email"
-                      type="email"
-                      placeholder="email@email.com.br"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      id="matriculaOuCpf"
+                      type="text"
+                      placeholder="Digite sua matrícula ou CPF"
+                      value={matriculaOuCpf}
+                      onChange={(e) => setMatriculaOuCpf(e.target.value)}
                       className="pl-10"
                       required
                     />
@@ -163,7 +276,7 @@ const Login = () => {
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="******"
+                      placeholder="3 últimos dígitos CPF + Dia Mês Nascimento"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="pl-10 pr-10"
@@ -218,6 +331,30 @@ const Login = () => {
             </p>
           </div>
         </div>
+
+        {/* Modal de Erro de Autenticação */}
+        <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
+          <DialogContent className="sm:max-w-md bg-white">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-red-600">
+                <AlertCircle className="w-5 h-5" />
+                Erro de Autenticação
+              </DialogTitle>
+              <DialogDescription className="text-slate-600 pt-2">
+                Matrícula/CPF ou senha incorreta. Por favor, verifique suas credenciais e tente novamente.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="sm:justify-center">
+              <Button
+                type="button"
+                onClick={() => setShowErrorDialog(false)}
+                className="w-full sm:w-auto bg-primary hover:bg-primary-700 text-white"
+              >
+                OK
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

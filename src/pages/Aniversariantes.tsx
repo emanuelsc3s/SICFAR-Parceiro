@@ -403,7 +403,7 @@ const Aniversariantes = () => {
 
   // Generate day and month options
   const dayOptions = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'));
-  const monthOptions = [
+  const monthOptions = useMemo(() => [
     { value: "01", label: "Janeiro" },
     { value: "02", label: "Fevereiro" },
     { value: "03", label: "Março" },
@@ -416,7 +416,7 @@ const Aniversariantes = () => {
     { value: "10", label: "Outubro" },
     { value: "11", label: "Novembro" },
     { value: "12", label: "Dezembro" }
-  ];
+  ], []);
 
   // Get unique departments
   const departments = [...new Set(allBirthdayData.map(person => person.department))];

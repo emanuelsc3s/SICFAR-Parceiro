@@ -51,7 +51,7 @@ const ScannerParceiro = () => {
     return mockVouchers[codigo] || null;
   };
 
-  const handleScan = (result: any) => {
+  const handleScan = (result: { rawValue: string }[]) => {
     if (result && result.length > 0) {
       const code = result[0].rawValue;
       setScannedCode(code);
@@ -60,7 +60,7 @@ const ScannerParceiro = () => {
     }
   };
 
-  const handleError = (error: any) => {
+  const handleError = (error: Error) => {
     console.info('Scanner error:', error);
   };
 

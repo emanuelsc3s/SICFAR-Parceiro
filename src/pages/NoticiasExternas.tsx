@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -196,7 +196,7 @@ const NoticiasExternas = () => {
   };
 
   // Função para salvar dados no localStorage
-  const saveToLocalStorage = (key: string, data: any) => {
+  const saveToLocalStorage = <T,>(key: string, data: T): void => {
     try {
       localStorage.setItem(key, JSON.stringify(data));
     } catch (error) {
@@ -205,10 +205,10 @@ const NoticiasExternas = () => {
   };
 
   // Função para carregar dados do localStorage
-  const loadFromLocalStorage = (key: string, defaultValue: any = null) => {
+  const loadFromLocalStorage = <T,>(key: string, defaultValue: T | null = null): T | null => {
     try {
       const saved = localStorage.getItem(key);
-      return saved ? JSON.parse(saved) : defaultValue;
+      return saved ? JSON.parse(saved) as T : defaultValue;
     } catch (error) {
       console.error('Erro ao carregar do localStorage:', error);
       return defaultValue;
@@ -216,15 +216,15 @@ const NoticiasExternas = () => {
   };
 
   // Função para buscar todas as notícias (usando dados mock)
-  const fetchAllNews = async () => {
+  const fetchAllNews = useCallback(async () => {
     setLoading(true);
     try {
       // Simular delay de carregamento
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // Verificar se há dados salvos no localStorage
-      const savedNews = loadFromLocalStorage('farmace_noticias_externas');
-      
+      const savedNews = loadFromLocalStorage<NewsItem[]>('farmace_noticias_externas');
+
       let newsData: NewsItem[];
       if (savedNews && savedNews.length > 0) {
         newsData = savedNews;
@@ -233,7 +233,7 @@ const NoticiasExternas = () => {
         newsData = generateMockNews();
         saveToLocalStorage('farmace_noticias_externas', newsData);
       }
-      
+
       setNews(newsData);
       setFilteredNews(newsData);
       setLastUpdate(new Date());
@@ -243,7 +243,7 @@ const NoticiasExternas = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Filtrar notícias baseado nos critérios selecionados
   useEffect(() => {
@@ -270,22 +270,22 @@ const NoticiasExternas = () => {
   // Buscar notícias ao carregar o componente e carregar preferências do localStorage
   useEffect(() => {
     fetchAllNews();
-    
+
     // Carregar preferências de filtros do localStorage
-    const savedSearchTerm = loadFromLocalStorage('farmace_search_term', '');
-    const savedSource = loadFromLocalStorage('farmace_selected_source', 'all');
-    const savedCategory = loadFromLocalStorage('farmace_selected_category', 'all');
-    
-    setSearchTerm(savedSearchTerm);
-    setSelectedSource(savedSource);
-    setSelectedCategory(savedCategory);
-    
+    const savedSearchTerm = loadFromLocalStorage<string>('farmace_search_term', '');
+    const savedSource = loadFromLocalStorage<string>('farmace_selected_source', 'all');
+    const savedCategory = loadFromLocalStorage<string>('farmace_selected_category', 'all');
+
+    setSearchTerm(savedSearchTerm || '');
+    setSelectedSource(savedSource || 'all');
+    setSelectedCategory(savedCategory || 'all');
+
     // Carregar última data de atualização
-    const savedLastUpdate = loadFromLocalStorage('farmace_last_update');
+    const savedLastUpdate = loadFromLocalStorage<string>('farmace_last_update');
     if (savedLastUpdate) {
       setLastUpdate(new Date(savedLastUpdate));
     }
-  }, []);
+  }, [fetchAllNews]);
 
   // Salvar preferências de filtros no localStorage quando alteradas
   useEffect(() => {

@@ -1,12 +1,35 @@
 import { useState, useEffect } from "react";
-import { Home, Plus, Users, QrCode, Download, DollarSign, Eye, ArrowLeft, ArrowRight, Flame, Pill, Car, Heart, Bus, Fuel } from "lucide-react";
+import { Home, Plus, Users, QrCode, Download, DollarSign, Eye, ArrowLeft, ArrowRight, Flame, Pill, Car, Heart, Bus, Fuel, LogOut, Settings, User as UserIcon, ChevronDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import QRCode from "qrcode";
+import { toast } from "sonner";
+import { generateVoucherPDF } from "@/utils/pdfGenerator";
+import { salvarVoucherEmitido, type VoucherEmitido } from "@/utils/voucherStorage";
+
+// Interface para os dados do colaborador
+interface ColaboradorData {
+  matricula: string;
+  nome: string;
+  cpf: string;
+  dataNascimento: string;
+  email: string;
+  loginTimestamp: string;
+}
 
 const SolicitarBeneficio = () => {
   const navigate = useNavigate();
@@ -15,13 +38,61 @@ const SolicitarBeneficio = () => {
   const [selectedBeneficios, setSelectedBeneficios] = useState<string[]>([]);
   const [showVoucher, setShowVoucher] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
-  
+  const [colaborador, setColaborador] = useState<ColaboradorData | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [currentVoucherNumber, setCurrentVoucherNumber] = useState<string>("");
+
   // Form data for step 2
   const [formData, setFormData] = useState({
     justificativa: "",
     urgencia: "",
     informacoesAdicionais: ""
   });
+
+  // Função para obter as iniciais do nome
+  const getInitials = (nome: string): string => {
+    if (!nome) return "??";
+    const names = nome.trim().split(" ");
+    if (names.length === 1) {
+      return names[0].substring(0, 2).toUpperCase();
+    }
+    return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+  };
+
+  // Função para formatar o nome (Primeiro nome + inicial do sobrenome)
+  const formatDisplayName = (nome: string): string => {
+    if (!nome) return "Usuário";
+    const names = nome.trim().split(" ");
+    if (names.length === 1) {
+      return names[0];
+    }
+    const primeiroNome = names[0];
+    const inicialSobrenome = names[names.length - 1][0].toUpperCase();
+    return `${primeiroNome} ${inicialSobrenome}.`;
+  };
+
+  // Função para fazer logout
+  const handleLogout = () => {
+    localStorage.removeItem('colaboradorLogado');
+    navigate('/login');
+  };
+
+  // Carregar dados do colaborador do localStorage
+  useEffect(() => {
+    const colaboradorData = localStorage.getItem('colaboradorLogado');
+    if (colaboradorData) {
+      try {
+        const data = JSON.parse(colaboradorData);
+        setColaborador(data);
+      } catch (error) {
+        console.error('Erro ao carregar dados do colaborador:', error);
+        navigate('/login');
+      }
+    } else {
+      // Se não houver dados do colaborador, redirecionar para login
+      navigate('/login');
+    }
+  }, [navigate]);
 
   const navigationButtons = [
     { name: "Início", icon: Home },
@@ -133,10 +204,223 @@ const SolicitarBeneficio = () => {
     }
   };
 
-  const handleConfirmSolicitation = () => {
-    const voucherNumber = generateVoucherNumber();
-    generateQRCode(voucherNumber);
-    setShowVoucher(true);
+  // Função para salvar voucher no localStorage usando o utilitário
+  const saveVoucherToLocalStorage = (voucherData: VoucherEmitido): boolean => {
+    const sucesso = salvarVoucherEmitido(voucherData);
+
+    if (!sucesso) {
+      toast.error("Erro ao salvar voucher localmente", {
+        description: "O voucher foi gerado mas não foi salvo no histórico local.",
+        duration: 5000
+      });
+    } else {
+      // Disparar evento customizado para notificar outras páginas
+      window.dispatchEvent(new CustomEvent('voucherEmitido', {
+        detail: voucherData
+      }));
+      console.log('📢 Evento voucherEmitido disparado para:', voucherData.id);
+    }
+
+    return sucesso;
+  };
+
+  const handleConfirmSolicitation = async () => {
+    console.log('🚀 Iniciando handleConfirmSolicitation...');
+
+    // Validação 1: Verifica se há dados do colaborador
+    if (!colaborador) {
+      console.error('❌ Validação falhou: Colaborador não encontrado');
+      toast.error("Dados do colaborador não encontrados. Por favor, faça login novamente.");
+      navigate('/login');
+      return;
+    }
+    console.log('✅ Validação 1 passou: Colaborador encontrado', colaborador);
+
+    // Validação 2: Verifica se o e-mail está disponível
+    if (!colaborador.email || colaborador.email.trim() === '') {
+      console.error('❌ Validação falhou: E-mail não encontrado');
+      toast.error("E-mail do colaborador não encontrado. Não é possível enviar o voucher.", {
+        description: "Entre em contato com o RH para atualizar seu e-mail no cadastro.",
+        duration: 5000
+      });
+      return;
+    }
+    console.log('✅ Validação 2 passou: E-mail encontrado', colaborador.email);
+
+    // Validação 3: Verifica se há benefícios selecionados
+    if (selectedBeneficios.length === 0) {
+      console.error('❌ Validação falhou: Nenhum benefício selecionado');
+      toast.error("Nenhum benefício selecionado. Por favor, selecione pelo menos um benefício.");
+      return;
+    }
+    console.log('✅ Validação 3 passou: Benefícios selecionados', selectedBeneficios);
+
+    console.log('⏳ Iniciando processamento...');
+    setIsProcessing(true);
+
+    try {
+      // 1. Gera o número do voucher
+      console.log('📝 Passo 1: Gerando número do voucher...');
+      const voucherNumber = generateVoucherNumber();
+      setCurrentVoucherNumber(voucherNumber);
+      console.log('✅ Voucher gerado:', voucherNumber);
+
+      // 2. Gera o QR Code
+      console.log('📱 Passo 2: Gerando QR Code...');
+      await generateQRCode(voucherNumber);
+      console.log('✅ QR Code gerado');
+
+      // Aguarda um pouco para garantir que o QR Code foi gerado
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // 3. Prepara os dados dos benefícios selecionados
+      console.log('📦 Passo 3: Preparando dados dos benefícios...');
+      const beneficiosSelecionados = selectedBeneficios
+        .map(id => {
+          const beneficio = beneficios.find(b => b.id === id);
+          return beneficio ? {
+            id: beneficio.id,
+            title: beneficio.title,
+            description: beneficio.description,
+            value: beneficio.value,
+            icon: beneficio.icon
+          } : null;
+        })
+        .filter((b): b is NonNullable<typeof b> => b !== null);
+      console.log('✅ Benefícios preparados:', beneficiosSelecionados);
+
+      // 4. Calcula o valor total dos benefícios
+      console.log('💰 Passo 4: Calculando valor total...');
+      const valorTotal = beneficiosSelecionados.reduce((total, beneficio) => {
+        // Extrai o valor numérico do campo value (ex: "R$ 125,00" -> 125.00)
+        const valorMatch = beneficio.value.match(/[\d.,]+/);
+        if (valorMatch) {
+          const valorNumerico = parseFloat(valorMatch[0].replace(',', '.'));
+          return total + (isNaN(valorNumerico) ? 0 : valorNumerico);
+        }
+        return total;
+      }, 0);
+      console.log('✅ Valor total calculado: R$', valorTotal);
+
+      // 5. Prepara dados do voucher para salvar no localStorage
+      console.log('💾 Passo 5: Preparando dados para localStorage...');
+      const now = new Date();
+      const dataValidade = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 dias de validade
+
+      const voucherDataToSave: VoucherEmitido = {
+        id: voucherNumber,
+        funcionario: colaborador.nome,
+        cpf: colaborador.cpf,
+        valor: valorTotal,
+        dataResgate: "", // Em branco - voucher ainda não foi resgatado
+        horaResgate: "", // Em branco - voucher ainda não foi resgatado
+        beneficios: beneficiosSelecionados.map(b => b.title),
+        parceiro: beneficiosSelecionados.length > 0 ? beneficiosSelecionados[0].title : 'Múltiplos Benefícios',
+        status: 'emitido',
+        dataValidade: dataValidade.toLocaleDateString('pt-BR')
+      };
+      console.log('✅ Dados preparados:', voucherDataToSave);
+
+      // 6. Salva o voucher no localStorage
+      console.log('💾 Passo 6: Salvando no localStorage...');
+      const salvouComSucesso = saveVoucherToLocalStorage(voucherDataToSave);
+      console.log(salvouComSucesso ? '✅ Salvo no localStorage com sucesso' : '❌ Erro ao salvar no localStorage');
+
+      // 7. Gera o PDF do voucher
+      console.log('📄 Passo 7: Gerando PDF do voucher...');
+      const pdfBase64 = generateVoucherPDF({
+        voucherNumber,
+        beneficios: beneficiosSelecionados,
+        formData,
+        qrCodeUrl: qrCodeUrl || '',
+        colaborador: {
+          nome: colaborador.nome,
+          matricula: colaborador.matricula,
+          email: colaborador.email
+        }
+      });
+      console.log('✅ PDF gerado com sucesso');
+
+      // 8. Envia o email com o PDF anexado
+      console.log('📧 Passo 8: Enviando e-mail...');
+      toast.loading("Enviando voucher por e-mail...", { id: 'sending-email' });
+
+      try {
+        console.log('🌐 Enviando requisição para o servidor backend...');
+        const response = await fetch('http://localhost:3001/api/send-voucher-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            destinatario: colaborador.email,
+            nomeDestinatario: colaborador.nome,
+            voucherNumber,
+            beneficios: beneficiosSelecionados,
+            pdfBase64,
+            formData
+          }),
+        });
+        console.log('📡 Resposta recebida do servidor:', response.status, response.statusText);
+
+        // Verifica se a resposta HTTP foi bem-sucedida
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log('📦 Resultado do servidor:', result);
+
+        if (result.success) {
+          toast.success("Voucher enviado por e-mail com sucesso! 🎉", {
+            id: 'sending-email',
+            description: `E-mail enviado para: ${colaborador.email}`,
+            duration: 5000
+          });
+          console.log('✅ E-mail enviado com sucesso para:', colaborador.email);
+          setShowVoucher(true);
+        } else {
+          throw new Error(result.message || 'Erro ao enviar e-mail');
+        }
+
+      } catch (emailError) {
+        // Tratamento específico para erros de envio de e-mail
+        console.error('❌ Erro ao enviar e-mail:', emailError);
+
+        // Verifica se é erro de conexão com o servidor
+        if (emailError instanceof TypeError && emailError.message.includes('fetch')) {
+          console.warn('⚠️ Servidor backend não está acessível');
+          toast.error("Servidor de e-mail indisponível", {
+            id: 'sending-email',
+            description: "O voucher será exibido, mas não foi enviado por e-mail. Verifique se o servidor backend está rodando.",
+            duration: 7000
+          });
+        } else {
+          console.warn('⚠️ Erro ao processar e-mail no servidor');
+          toast.error("Erro ao enviar e-mail", {
+            id: 'sending-email',
+            description: "O voucher será exibido, mas não foi enviado por e-mail. Tente novamente mais tarde.",
+            duration: 7000
+          });
+        }
+
+        // Mesmo com erro no e-mail, mostra o voucher
+        console.log('📄 Exibindo voucher mesmo com erro no e-mail');
+        setShowVoucher(true);
+      }
+
+    } catch (error) {
+      // Tratamento de erros gerais (geração de voucher, QR Code, PDF)
+      console.error('❌ Erro GERAL ao processar solicitação:', error);
+      toast.error("Erro ao processar solicitação", {
+        description: "Ocorreu um erro ao gerar o voucher. Por favor, tente novamente.",
+        duration: 5000
+      });
+    } finally {
+      console.log('🏁 Finalizando processamento...');
+      setIsProcessing(false);
+      console.log('✅ handleConfirmSolicitation concluído');
+    }
   };
 
   return (
@@ -152,17 +436,17 @@ const SolicitarBeneficio = () => {
               height: "68.97px"
             }} />
           </div>
-          
+
           <nav className="hidden md:flex items-center space-x-2 ml-12">
             {navigationButtons.map((button, index) => {
               const IconComponent = button.icon;
               return (
-                <Button 
+                <Button
                   key={index}
-                  variant="ghost" 
+                  variant="ghost"
                   className={`transition-colors px-3 py-2 text-sm ${
-                    activeButton === button.name 
-                      ? "bg-white/30 text-white border-b-2 border-white/60" 
+                    activeButton === button.name
+                      ? "bg-white/30 text-white border-b-2 border-white/60"
                       : "text-white hover:bg-white/20 hover:text-white"
                   }`}
                   onClick={() => {
@@ -180,6 +464,65 @@ const SolicitarBeneficio = () => {
               );
             })}
           </nav>
+
+          {/* Seção de Perfil do Usuário */}
+          {colaborador && (
+            <div className="hidden md:flex items-center space-x-3 ml-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center space-x-3 hover:bg-white/10 rounded-lg px-3 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-white/30">
+                    {/* Avatar */}
+                    <Avatar className="h-10 w-10 border-2 border-white/30">
+                      <AvatarFallback className="bg-primary-700 text-white font-semibold text-sm">
+                        {getInitials(colaborador.nome)}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    {/* Nome e Badge */}
+                    <div className="flex flex-col items-start">
+                      <span className="text-sm font-medium text-white leading-tight">
+                        {formatDisplayName(colaborador.nome)}
+                      </span>
+                      <Badge variant="secondary" className="mt-0.5 text-xs bg-white/20 text-white border-white/30 hover:bg-white/30">
+                        Colaborador
+                      </Badge>
+                    </div>
+
+                    {/* Ícone de dropdown */}
+                    <ChevronDown className="h-4 w-4 text-white/70" />
+                  </button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{colaborador.nome}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {colaborador.email || 'Sem email cadastrado'}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground mt-1">
+                        Matrícula: {colaborador.matricula}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/configuracao')}>
+                    <UserIcon className="mr-2 h-4 w-4" />
+                    <span>Meu Perfil</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/configuracao')}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Configurações</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Sair</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
         </div>
       </header>
 
@@ -235,7 +578,7 @@ const SolicitarBeneficio = () => {
                   {/* Left side - Voucher info */}
                   <div className="flex-1">
                     <p className="text-xs text-gray-600 mb-1">Número do Voucher</p>
-                    <p className="text-2xl font-bold text-blue-600 mb-3 print:text-xl">{generateVoucherNumber()}</p>
+                    <p className="text-2xl font-bold text-blue-600 mb-3 print:text-xl">{currentVoucherNumber}</p>
                     
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
@@ -684,13 +1027,23 @@ const SolicitarBeneficio = () => {
                       Cancelar
                     </Button>
                     
-                    <Button 
+                    <Button
                       className="flex items-center text-white px-8"
                       style={{ backgroundColor: "#1E3A8A" }}
                       onClick={handleConfirmSolicitation}
+                      disabled={isProcessing}
                     >
-                      Confirmar Solicitação
-                      <ArrowRight className="w-4 h-4 ml-2" />
+                      {isProcessing ? (
+                        <>
+                          <span className="animate-spin mr-2">⏳</span>
+                          Processando...
+                        </>
+                      ) : (
+                        <>
+                          Confirmar Solicitação
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>

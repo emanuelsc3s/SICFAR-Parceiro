@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  Search, 
-  DollarSign, 
-  FileText, 
-  AlertTriangle, 
+import {
+  Search,
+  DollarSign,
+  FileText,
+  AlertTriangle,
   CheckCircle,
   Eye,
   Trash2,
@@ -39,6 +39,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { buscarVouchersPorParceiro } from "@/utils/voucherStorage";
 
 const BeneficioFaturas = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -46,7 +47,7 @@ const BeneficioFaturas = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedFaturaId, setSelectedFaturaId] = useState<number | null>(null);
 
-  // Dados mockados das faturas
+  // Dados mockados das faturas - Apenas Farmacia Santa Cecilia
   const [faturas, setFaturas] = useState([
     {
       id: 1,
@@ -56,26 +57,63 @@ const BeneficioFaturas = () => {
       valorTotal: 1500.00,
       status: "Em Revisão",
       dataCriacao: "31/01/2024"
-    },
-    {
-      id: 2,
-      parceiro: "Farmacia Gentil",
-      referencia: "2024-01",
-      qtdVouchers: 8,
-      valorTotal: 2400.00,
-      status: "Aprovada",
-      dataCriacao: "30/01/2024"
-    },
-    {
-      id: 3,
-      parceiro: "Distribuidora Gás Butano",
-      referencia: "2024-01",
-      qtdVouchers: 5,
-      valorTotal: 750.00,
-      status: "Contestada",
-      dataCriacao: "29/01/2024"
     }
   ]);
+
+  // Atualizar quantidade e valor total da fatura com base nos vouchers do localStorage
+  useEffect(() => {
+    const atualizarFatura = () => {
+      // Buscar vouchers da Farmacia Santa Cecilia
+      const vouchersLocalStorage = buscarVouchersPorParceiro("Farmacia Santa Cecilia");
+      const vouchersVariacao1 = buscarVouchersPorParceiro("Vale Farmácia Santa Cecília");
+      const vouchersVariacao2 = buscarVouchersPorParceiro("Farmácia Santa Cecília");
+
+      // Combinar todos os vouchers
+      const todosVouchers = [
+        ...vouchersLocalStorage,
+        ...vouchersVariacao1,
+        ...vouchersVariacao2
+      ];
+
+      // Remover duplicatas
+      const vouchersUnicos = todosVouchers.filter((voucher, index, self) =>
+        index === self.findIndex((v) => v.id === voucher.id)
+      );
+
+      if (vouchersUnicos.length > 0) {
+        const qtdVouchers = vouchersUnicos.length;
+        const valorTotal = vouchersUnicos.reduce((sum, v) => sum + v.valor, 0);
+
+        setFaturas([
+          {
+            id: 1,
+            parceiro: "Farmacia Santa Cecilia",
+            referencia: "2024-01",
+            qtdVouchers: qtdVouchers,
+            valorTotal: valorTotal,
+            status: "Em Revisão",
+            dataCriacao: "31/01/2024"
+          }
+        ]);
+
+        console.log(`✅ Fatura atualizada: ${qtdVouchers} vouchers, R$ ${valorTotal.toFixed(2)}`);
+      }
+    };
+
+    atualizarFatura();
+
+    // Listener para atualizar quando novos vouchers forem emitidos
+    const handleVoucherEmitido = () => {
+      console.log('🔄 Novo voucher emitido, atualizando fatura...');
+      atualizarFatura();
+    };
+
+    window.addEventListener('voucherEmitido', handleVoucherEmitido);
+
+    return () => {
+      window.removeEventListener('voucherEmitido', handleVoucherEmitido);
+    };
+  }, []);
 
   const stats = {
     totalFaturas: faturas.length,
