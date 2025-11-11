@@ -38,13 +38,41 @@ const Login = () => {
 
         {/* Conteúdo da seção de branding */}
         <div className="relative z-10 flex flex-col justify-center items-center w-full px-12 text-white">
-          {/* Imagem ilustrativa */}
-          <div className="mb-8 max-w-md">
-            <img
-              src="/placeholder.svg"
-              alt="Profissional usando smartphone"
-              className="w-full h-auto rounded-lg shadow-2xl"
-            />
+          {/* Ilustração com formas geométricas */}
+          <div className="mb-8 max-w-md w-full aspect-square relative">
+            {/* Container principal com fundo e sombra */}
+            <div className="w-full h-full rounded-2xl bg-white/10 backdrop-blur-sm shadow-2xl p-8 relative overflow-hidden">
+
+              {/* Círculo grande superior esquerdo */}
+              <div className="absolute -top-8 -left-8 w-32 h-32 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 opacity-60 animate-pulse"
+                   style={{ animationDuration: '4s' }} />
+
+              {/* Círculo médio inferior direito */}
+              <div className="absolute -bottom-6 -right-6 w-40 h-40 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 opacity-50 animate-pulse"
+                   style={{ animationDuration: '5s', animationDelay: '1s' }} />
+
+              {/* Retângulo rotacionado centro-esquerda */}
+              <div className="absolute top-1/4 left-12 w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 opacity-40 rounded-xl transform rotate-12 animate-pulse"
+                   style={{ animationDuration: '6s', animationDelay: '0.5s' }} />
+
+              {/* Quadrado pequeno superior direito */}
+              <div className="absolute top-16 right-20 w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-500 opacity-50 rounded-lg transform -rotate-12" />
+
+              {/* Círculo pequeno centro */}
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-gradient-to-br from-indigo-400 to-blue-600 opacity-70 animate-pulse"
+                   style={{ animationDuration: '3s', animationDelay: '2s' }} />
+
+              {/* Retângulo horizontal inferior centro */}
+              <div className="absolute bottom-20 left-1/4 w-32 h-12 bg-gradient-to-r from-teal-400 to-cyan-500 opacity-40 rounded-full transform rotate-6" />
+
+              {/* Quadrado médio centro-direita */}
+              <div className="absolute top-1/3 right-16 w-20 h-20 bg-gradient-to-br from-rose-400 to-red-500 opacity-45 rounded-lg transform rotate-45 animate-pulse"
+                   style={{ animationDuration: '5s', animationDelay: '1.5s' }} />
+
+              {/* Círculo extra pequeno decorativo */}
+              <div className="absolute bottom-1/3 left-20 w-12 h-12 rounded-full bg-gradient-to-br from-violet-400 to-purple-600 opacity-60" />
+
+            </div>
           </div>
 
           {/* Texto de branding */}
