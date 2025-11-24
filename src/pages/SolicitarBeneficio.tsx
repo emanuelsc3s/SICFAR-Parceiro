@@ -328,7 +328,7 @@ const SolicitarBeneficio = () => {
 
       // 7. Gera o PDF do voucher
       console.log('📄 Passo 7: Gerando PDF do voucher...');
-      const pdfBase64 = generateVoucherPDF({
+      const pdfBase64 = await generateVoucherPDF({
         voucherNumber,
         beneficios: beneficiosSelecionados,
         formData,
