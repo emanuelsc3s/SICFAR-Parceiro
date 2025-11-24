@@ -1,7 +1,7 @@
-import { 
-  User, Clock, TrendingUp, DollarSign, MessageCircle, 
-  Settings, Shield, BarChart3, BookOpen, HelpCircle, 
-  Users, UserCheck, Bot, Calendar, Eye
+import {
+  User, Clock, TrendingUp, DollarSign, MessageCircle,
+  Settings, Shield, BarChart3, BookOpen, HelpCircle,
+  Users, UserCheck, Bot, Calendar, Eye, LogOut, ArrowRightLeft, FileText, FileCheck
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -16,19 +16,21 @@ import SystemStatus from "@/components/SystemStatus";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { NoticiaInterna } from "@/types/comunicacao";
 import { getNoticiasInternas, incrementarVisualizacao } from "@/utils/localStorage";
 
 const Index = () => {
   const navigate = useNavigate();
   const [noticiasRecentes, setNoticiasRecentes] = useState<NoticiaInterna[]>([]);
+  const [isAutoatendimentoModalOpen, setIsAutoatendimentoModalOpen] = useState(false);
 
   useEffect(() => {
     const noticias = getNoticiasInternas()
       .filter(noticia => noticia.status === 'publicado')
       .sort((a, b) => new Date(b.dataPublicacao).getTime() - new Date(a.dataPublicacao).getTime())
       .slice(0, 6);
-    
+
     setNoticiasRecentes(noticias);
   }, []);
 
@@ -43,13 +45,19 @@ const Index = () => {
       navigate("/portalbeneficio");
     } else if (title === "Comunicação") {
       navigate("/comunicacao");
+    } else if (title === "Autoatendimento") {
+      setIsAutoatendimentoModalOpen(true);
     } else {
       console.log(`Clicked on ${title}`);
     }
   };
 
   const hasRedirect = (title: string) => {
-    return ["Manual do Gestor", "FAQ", "Lis AI", "Benefícios e Remuneração", "Comunicação", "Gestão de Dados"].includes(title);
+    return ["Manual do Gestor", "FAQ", "Lis AI", "Benefícios e Remuneração", "Comunicação", "Gestão de Dados", "Autoatendimento"].includes(title);
+  };
+
+  const handleAutoatendimentoAction = (action: string) => {
+    console.log(`Ação selecionada: ${action}`);
   };
 
   const formatarData = (dataStr: string): string => {
@@ -78,8 +86,8 @@ const Index = () => {
       gradient: true
     },
     {
-      title: "Gestão de Tempo e Presença",
-      description: "Controle de ponto, banco de horas, férias e justificativas de ausência",
+      title: "Autoatendimento",
+      description: "Solicitações e acompanhamento de férias, saídas, horários e transferências",
       icon: Clock
     },
     {
@@ -258,6 +266,107 @@ const Index = () => {
           </div>
         )}
       </main>
+
+      {/* Modal de Autoatendimento */}
+      <Dialog open={isAutoatendimentoModalOpen} onOpenChange={setIsAutoatendimentoModalOpen}>
+        <DialogContent className="max-w-[900px] w-[85vw] max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Autoatendimento do Colaborador</DialogTitle>
+          </DialogHeader>
+
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            {/* Primeira linha - 3 cards */}
+            <div className="col-span-2 grid grid-cols-3 gap-4">
+              {/* Card 1: Solicitar Saída Antecipada */}
+              <Card
+                className="cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-200 border-2 hover:border-orange-500"
+                onClick={() => handleAutoatendimentoAction("Solicitar Saída Antecipada")}
+              >
+                <CardContent className="p-4 flex flex-col items-center text-center h-full justify-center">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                    <LogOut className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-base mb-1">Solicitar Saída Antecipada</h3>
+                  <p className="text-xs text-muted-foreground">Informar saída antes do horário</p>
+                </CardContent>
+              </Card>
+
+              {/* Card 2: Solicitar Férias */}
+              <Card
+                className="cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-200 border-2 hover:border-blue-500"
+                onClick={() => handleAutoatendimentoAction("Solicitar Férias")}
+              >
+                <CardContent className="p-4 flex flex-col items-center text-center h-full justify-center">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                    <Calendar className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-base mb-1">Solicitar Férias</h3>
+                  <p className="text-xs text-muted-foreground">Solicitar período de férias</p>
+                </CardContent>
+              </Card>
+
+              {/* Card 3: Solicitar Mudança de Horário */}
+              <Card
+                className="cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-200 border-2 hover:border-purple-500"
+                onClick={() => handleAutoatendimentoAction("Solicitar Mudança de Horário")}
+              >
+                <CardContent className="p-4 flex flex-col items-center text-center h-full justify-center">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                    <Clock className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-base mb-1">Solicitar Mudança de Horário</h3>
+                  <p className="text-xs text-muted-foreground">Alterar turno ou horário de trabalho</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Segunda linha - 3 cards */}
+            <div className="col-span-2 grid grid-cols-3 gap-4">
+              {/* Card 4: Solicitar Transferência */}
+              <Card
+                className="cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-200 border-2 hover:border-green-500"
+                onClick={() => handleAutoatendimentoAction("Solicitar Transferência")}
+              >
+                <CardContent className="p-4 flex flex-col items-center text-center h-full justify-center">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                    <ArrowRightLeft className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-base mb-1">Solicitar Transferência</h3>
+                  <p className="text-xs text-muted-foreground">Solicitar mudança de departamento</p>
+                </CardContent>
+              </Card>
+
+              {/* Card 5: Visualizar Minhas Solicitações */}
+              <Card
+                className="cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-200 border-2 hover:border-slate-500"
+                onClick={() => handleAutoatendimentoAction("Visualizar Minhas Solicitações")}
+              >
+                <CardContent className="p-4 flex flex-col items-center text-center h-full justify-center">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                    <FileText className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-base mb-1">Visualizar Minhas Solicitações</h3>
+                  <p className="text-xs text-muted-foreground">Acompanhar status das solicitações</p>
+                </CardContent>
+              </Card>
+
+              {/* Card 6: Enviar Atestado Médico */}
+              <Card
+                className="cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-200 border-2 hover:border-teal-500"
+                onClick={() => handleAutoatendimentoAction("Enviar Atestado Médico")}
+              >
+                <CardContent className="p-4 flex flex-col items-center text-center h-full justify-center">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                    <FileCheck className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-base mb-1">Enviar Atestado Médico</h3>
+                  <p className="text-xs text-muted-foreground">Enviar atestado de ausência ou afastamento</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
