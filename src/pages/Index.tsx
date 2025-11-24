@@ -61,6 +61,8 @@ const Index = () => {
       navigate("/solicitarsaidaantecipada");
     } else if (action === "Solicitar Férias") {
       navigate("/solicitarferias");
+    } else if (action === "Solicitar Transferência") {
+      navigate("/solicitartransferencia");
     } else {
       console.log(`Ação selecionada: ${action}`);
     }
