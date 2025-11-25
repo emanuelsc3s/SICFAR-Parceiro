@@ -92,8 +92,7 @@ const Index = () => {
     {
       title: "Gestão de Dados",
       description: "Acesse e atualize suas informações pessoais, documentos e dados cadastrais",
-      icon: User,
-      gradient: true
+      icon: User
     },
     {
       title: "Autoatendimento",
