@@ -1,4 +1,4 @@
-import { Search, Bell, Settings, User, CheckCircle, Clock, XCircle } from "lucide-react";
+import { Search, Bell, Settings, User, CheckCircle, Clock, XCircle, ClipboardCheck, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -16,6 +16,9 @@ const Header = () => {
 
   // Contar notificações não lidas
   const notificacoesNaoLidas = notificacoes.filter(n => !n.lida).length;
+
+  // Contar solicitações pendentes (que precisam de avaliação)
+  const solicitacoesPendentes = notificacoes.filter(n => n.status === 'Pendente').length;
 
   // Função para obter o ícone e cor do status
   const getStatusIcon = (status: string) => {
@@ -158,7 +161,7 @@ const Header = () => {
                 </Table>
               </div>
               {notificacoes.length > 0 && (
-                <div className="p-3 border-t bg-muted/20 text-center">
+                <div className="p-3 border-t bg-muted/20 flex flex-col sm:flex-row items-center justify-between gap-2">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -168,6 +171,24 @@ const Header = () => {
                     className="text-xs"
                   >
                     Marcar todas como lidas
+                  </Button>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => {
+                      setIsNotificacoesOpen(false);
+                      navigate('/autorizacaoautoatendimento');
+                    }}
+                    className="text-xs"
+                  >
+                    <ClipboardCheck className="w-4 h-4 mr-1" />
+                    Avaliar Solicitações
+                    {solicitacoesPendentes > 0 && (
+                      <Badge className="ml-1 h-5 min-w-[20px] px-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs">
+                        {solicitacoesPendentes}
+                      </Badge>
+                    )}
+                    <ExternalLink className="w-3 h-3 ml-1" />
                   </Button>
                 </div>
               )}

@@ -24,6 +24,7 @@ import SolicitarFerias from "./pages/SolicitarFerias";
 import SolicitarTransferencia from "./pages/SolicitarTransferencia";
 import EnviarAtestado from "./pages/EnviarAtestado";
 import MeusAtestados from "./pages/MeusAtestados";
+import AutorizacaoAutoatendimento from "./pages/AutorizacaoAutoatendimento";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => (
           <Route path="/solicitartransferencia" element={<SolicitarTransferencia />} />
           <Route path="/enviaratestado" element={<EnviarAtestado />} />
           <Route path="/meusatestados" element={<MeusAtestados />} />
+          <Route path="/autorizacaoautoatendimento" element={<AutorizacaoAutoatendimento />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

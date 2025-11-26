@@ -7,6 +7,13 @@ export interface NotificacaoSolicitacao {
   status: 'Aprovada' | 'Pendente' | 'Rejeitada';
   datasolicitacao: string;
   lida: boolean;
+  // Campos para avaliação do RH
+  setor?: string;
+  cargo?: string;
+  descricaoSolicitacao?: string;
+  justificativaAvaliacao?: string;
+  avaliadorNome?: string;
+  dataAvaliacao?: string;
 }
 
 // Função para gerar notificações de exemplo
@@ -19,7 +26,13 @@ export const gerarNotificacoesExemplo = (): NotificacaoSolicitacao[] => {
       solicitacao: 'Férias',
       status: 'Aprovada',
       datasolicitacao: '2024-01-15',
-      lida: false
+      lida: false,
+      setor: 'Tecnologia da Informação',
+      cargo: 'Gerente de TI',
+      descricaoSolicitacao: 'Férias de 30 dias a partir de 01/02/2024',
+      justificativaAvaliacao: 'Aprovado conforme planejamento de férias da equipe',
+      avaliadorNome: 'Ricardo Mendes',
+      dataAvaliacao: '2024-01-16'
     },
     {
       id: '2',
@@ -28,7 +41,10 @@ export const gerarNotificacoesExemplo = (): NotificacaoSolicitacao[] => {
       solicitacao: 'Atestado Médico',
       status: 'Pendente',
       datasolicitacao: '2024-01-18',
-      lida: false
+      lida: false,
+      setor: 'Recursos Humanos',
+      cargo: 'Analista de RH',
+      descricaoSolicitacao: 'Atestado médico de 3 dias por motivo de consulta'
     },
     {
       id: '3',
@@ -37,7 +53,13 @@ export const gerarNotificacoesExemplo = (): NotificacaoSolicitacao[] => {
       solicitacao: 'Saída Antecipada',
       status: 'Aprovada',
       datasolicitacao: '2024-01-20',
-      lida: true
+      lida: true,
+      setor: 'Financeiro',
+      cargo: 'Contador',
+      descricaoSolicitacao: 'Saída às 15h para consulta médica',
+      justificativaAvaliacao: 'Aprovado mediante apresentação de comprovante',
+      avaliadorNome: 'Ana Beatriz',
+      dataAvaliacao: '2024-01-20'
     },
     {
       id: '4',
@@ -46,7 +68,10 @@ export const gerarNotificacoesExemplo = (): NotificacaoSolicitacao[] => {
       solicitacao: 'Transferência',
       status: 'Pendente',
       datasolicitacao: '2024-01-22',
-      lida: false
+      lida: false,
+      setor: 'Vendas',
+      cargo: 'Vendedora',
+      descricaoSolicitacao: 'Transferência para filial Centro - motivo pessoal'
     },
     {
       id: '5',
@@ -55,7 +80,13 @@ export const gerarNotificacoesExemplo = (): NotificacaoSolicitacao[] => {
       solicitacao: 'Mudança de Horário',
       status: 'Rejeitada',
       datasolicitacao: '2024-01-23',
-      lida: true
+      lida: true,
+      setor: 'Produção',
+      cargo: 'Operador',
+      descricaoSolicitacao: 'Mudança do turno noturno para diurno',
+      justificativaAvaliacao: 'Rejeitado devido à necessidade operacional do turno noturno',
+      avaliadorNome: 'Marcos Silva',
+      dataAvaliacao: '2024-01-24'
     },
     {
       id: '6',
@@ -64,7 +95,13 @@ export const gerarNotificacoesExemplo = (): NotificacaoSolicitacao[] => {
       solicitacao: 'Declaração',
       status: 'Aprovada',
       datasolicitacao: '2024-01-24',
-      lida: false
+      lida: false,
+      setor: 'Administrativo',
+      cargo: 'Assistente Administrativo',
+      descricaoSolicitacao: 'Declaração de vínculo empregatício para financiamento',
+      justificativaAvaliacao: 'Declaração emitida conforme solicitação',
+      avaliadorNome: 'Carla Dias',
+      dataAvaliacao: '2024-01-24'
     },
     {
       id: '7',
@@ -73,7 +110,10 @@ export const gerarNotificacoesExemplo = (): NotificacaoSolicitacao[] => {
       solicitacao: 'Benefícios',
       status: 'Pendente',
       datasolicitacao: '2024-01-25',
-      lida: false
+      lida: false,
+      setor: 'Logística',
+      cargo: 'Motorista',
+      descricaoSolicitacao: 'Inclusão de dependente no plano de saúde'
     },
     {
       id: '8',
@@ -82,7 +122,13 @@ export const gerarNotificacoesExemplo = (): NotificacaoSolicitacao[] => {
       solicitacao: 'Alteração de Dados',
       status: 'Aprovada',
       datasolicitacao: '2024-01-26',
-      lida: true
+      lida: true,
+      setor: 'Marketing',
+      cargo: 'Designer',
+      descricaoSolicitacao: 'Atualização de endereço residencial',
+      justificativaAvaliacao: 'Dados atualizados no sistema',
+      avaliadorNome: 'Paula Ribeiro',
+      dataAvaliacao: '2024-01-26'
     },
     {
       id: '9',
@@ -91,7 +137,10 @@ export const gerarNotificacoesExemplo = (): NotificacaoSolicitacao[] => {
       solicitacao: 'Vale-Transporte',
       status: 'Pendente',
       datasolicitacao: '2024-01-27',
-      lida: false
+      lida: false,
+      setor: 'Atendimento',
+      cargo: 'Atendente',
+      descricaoSolicitacao: 'Alteração de vale-transporte por mudança de endereço'
     },
     {
       id: '10',
@@ -100,7 +149,13 @@ export const gerarNotificacoesExemplo = (): NotificacaoSolicitacao[] => {
       solicitacao: 'Férias',
       status: 'Rejeitada',
       datasolicitacao: '2024-01-28',
-      lida: false
+      lida: false,
+      setor: 'Qualidade',
+      cargo: 'Analista de Qualidade',
+      descricaoSolicitacao: 'Férias de 15 dias a partir de 05/02/2024',
+      justificativaAvaliacao: 'Período solicitado conflita com auditoria programada',
+      avaliadorNome: 'Fernando Costa',
+      dataAvaliacao: '2024-01-29'
     }
   ];
 };
