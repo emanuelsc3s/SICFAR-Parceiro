@@ -18,7 +18,14 @@ export function useCurrentUser(): UseCurrentUserReturn {
   useEffect(() => {
     const loadUser = () => {
       try {
-        const userData = localStorage.getItem('colaborador');
+        // Tenta buscar de 'colaboradorLogado' primeiro (usado no login do Parceiro)
+        let userData = localStorage.getItem('colaboradorLogado');
+
+        // Se não encontrar, tenta buscar de 'colaborador' (compatibilidade)
+        if (!userData) {
+          userData = localStorage.getItem('colaborador');
+        }
+
         if (userData) {
           const parsedUser = JSON.parse(userData);
           setUser(parsedUser);
@@ -33,7 +40,7 @@ export function useCurrentUser(): UseCurrentUserReturn {
 
     // Listener para mudanças no localStorage (login/logout em outras abas)
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'colaborador') {
+      if (e.key === 'colaboradorLogado' || e.key === 'colaborador') {
         loadUser();
       }
     };

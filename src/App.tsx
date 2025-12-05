@@ -25,6 +25,7 @@ import SolicitarTransferencia from "./pages/SolicitarTransferencia";
 import EnviarAtestado from "./pages/EnviarAtestado";
 import MeusAtestados from "./pages/MeusAtestados";
 import AutorizacaoAutoatendimento from "./pages/AutorizacaoAutoatendimento";
+import PortalParceiro from "./pages/PortalParceiro";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
           <Route path="/noticiasexternas" element={<NoticiasExternas />} />
           <Route path="/comunicacao" element={<Comunicacao />} />
           <Route path="/comunicacao/admin" element={<ComunicacaoAdmin />} />
+          <Route path="/portalparceiro" element={<PortalParceiro />} />
           <Route path="/scannerparceiro" element={<ScannerParceiro />} />
           <Route path="/solicitarsaidaantecipada" element={<SolicitarSaidaAntecipada />} />
           <Route path="/solicitarferias" element={<SolicitarFerias />} />

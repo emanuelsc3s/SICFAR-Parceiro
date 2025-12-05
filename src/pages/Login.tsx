@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { User, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { User, Lock, Eye, EyeOff, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,129 +13,177 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import funcionariosData from "../../data/funcionarios.json";
+import { supabase } from "@/lib/supabase";
+import { AuthError } from "@supabase/supabase-js";
+// Imagem hero do login
+import loginHero from "@/assets/LisPortalRH.png";
 
-// Interface para os dados do funcionário
-interface Funcionario {
-  MATRICULA: string;
-  NOME: string;
-  CPF: string;
-  NASCIMENTO: string;
-  EMAIL: string;
+// Interface para dados de login
+interface LoginFormData {
+  email: string;
+  password: string;
 }
 
-// Função para gerar a senha esperada baseada no CPF e data de nascimento
-const gerarSenha = (cpf: string, dataNascimento: string): string => {
-  // Pega os 3 últimos dígitos do CPF
-  const ultimosDigitosCPF = cpf.slice(-3);
+// Função para mapear erros do Supabase para mensagens em português
+const mapearErroSupabase = (error: AuthError): string => {
+  const errorMessages: Record<string, string> = {
+    'Invalid login credentials': 'Email ou senha incorretos',
+    'Email not confirmed': 'Email não confirmado. Verifique sua caixa de entrada',
+    'User not found': 'Usuário não encontrado',
+    'Too many requests': 'Muitas tentativas. Tente novamente mais tarde',
+    'Network request failed': 'Erro de conexão. Verifique sua internet',
+  };
 
-  // Extrai dia e mês da data de nascimento (formato: DD.MM.YYYY HH:MM)
-  const [dia, mes] = dataNascimento.split('.');
-  const ddmm = `${dia}${mes}`;
-
-  return `${ultimosDigitosCPF}${ddmm}`;
-};
-
-// Função para normalizar matrícula (remove zeros à esquerda)
-const normalizarMatricula = (matricula: string): string => {
-  return matricula.replace(/^0+/, '') || '0';
-};
-
-// Função para normalizar CPF (remove pontos, traços e espaços)
-const normalizarCPF = (cpf: string): string => {
-  return cpf.replace(/[.\-\s]/g, '');
-};
-
-// Função para detectar se o input é CPF ou matrícula
-const detectarTipoInput = (input: string): 'cpf' | 'matricula' => {
-  const inputLimpo = input.replace(/[.\-\s]/g, '');
-
-  // Se tem 11 dígitos numéricos, é CPF
-  if (/^\d{11}$/.test(inputLimpo)) {
-    return 'cpf';
+  // Verifica se a mensagem de erro está no mapeamento
+  for (const [key, value] of Object.entries(errorMessages)) {
+    if (error.message.includes(key)) {
+      return value;
+    }
   }
 
-  // Caso contrário, é matrícula
-  return 'matricula';
+  // Mensagem genérica para erros não mapeados
+  return 'Erro ao fazer login. Tente novamente';
 };
 
-// Função para buscar funcionário por matrícula OU CPF
-const buscarFuncionario = (input: string, funcionarios: Funcionario[]): Funcionario | undefined => {
-  const tipoInput = detectarTipoInput(input);
-
-  if (tipoInput === 'cpf') {
-    // Busca por CPF
-    const cpfNormalizado = normalizarCPF(input);
-    return funcionarios.find(f => normalizarCPF(f.CPF) === cpfNormalizado);
-  } else {
-    // Busca por matrícula
-    const matriculaNormalizada = normalizarMatricula(input);
-    return funcionarios.find(f => {
-      const matriculaFuncionarioNormalizada = normalizarMatricula(f.MATRICULA);
-      return matriculaFuncionarioNormalizada === matriculaNormalizada;
-    });
-  }
+// Função para validar formato de email
+const validarEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
 };
 
 const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [matriculaOuCpf, setMatriculaOuCpf] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Verifica se já existe uma sessão ativa ao montar o componente
+  useEffect(() => {
+    const verificarSessao = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (session) {
+          // Usuário já está autenticado, redireciona para Portal do Parceiro
+          console.log("✅ Sessão ativa encontrada, redirecionando...");
+          navigate('/portalparceiro');
+        }
+      } catch (error) {
+        console.error("Erro ao verificar sessão:", error);
+      }
+    };
+
+    verificarSessao();
+  }, [navigate]);
+
+  // Função de validação do formulário
+  const validarFormulario = (): boolean => {
+    let isValid = true;
+
+    // Limpa erros anteriores
+    setEmailError("");
+    setPasswordError("");
+
+    // Valida email
+    if (!email.trim()) {
+      setEmailError("Email é obrigatório");
+      isValid = false;
+    } else if (!validarEmail(email.trim())) {
+      setEmailError("Email inválido");
+      isValid = false;
+    }
+
+    // Valida senha
+    if (!password.trim()) {
+      setPasswordError("Senha é obrigatória");
+      isValid = false;
+    } else if (password.trim().length < 6) {
+      setPasswordError("Senha deve ter no mínimo 6 caracteres");
+      isValid = false;
+    }
+
+    return isValid;
+  };
+
+  // Função de login com Supabase
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Remove espaços em branco
-    const inputDigitado = matriculaOuCpf.trim();
-    const senhaDigitada = password.trim();
-
-    // Busca o funcionário no JSON (por matrícula OU CPF)
-    const funcionarios = funcionariosData.RecordSet as Funcionario[];
-    const funcionario = buscarFuncionario(inputDigitado, funcionarios);
-
-    if (!funcionario) {
-      // Matrícula ou CPF não encontrado
-      setShowErrorDialog(true);
+    // Valida formulário
+    if (!validarFormulario()) {
       return;
     }
 
-    // Gera a senha esperada baseada no CPF e data de nascimento
-    const senhaEsperada = gerarSenha(funcionario.CPF, funcionario.NASCIMENTO);
+    setIsLoading(true);
+    setErrorMessage("");
 
-    if (senhaDigitada === senhaEsperada) {
-      // Login bem-sucedido
-      const tipoLogin = detectarTipoInput(inputDigitado);
-      console.log("✅ Login bem-sucedido:", funcionario.NOME, "| Email:", funcionario.EMAIL, "| Tipo de login:", tipoLogin === 'cpf' ? 'CPF' : 'Matrícula');
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password.trim(),
+      });
 
-      // Salva os dados do colaborador no localStorage
-      const colaboradorData = {
-        matricula: funcionario.MATRICULA,
-        nome: funcionario.NOME,
-        cpf: funcionario.CPF,
-        dataNascimento: funcionario.NASCIMENTO,
-        email: funcionario.EMAIL || '',
-        loginTimestamp: new Date().toISOString()
-      };
+      if (error) {
+        // Mapeia erro para mensagem em português
+        const mensagemErro = mapearErroSupabase(error);
+        setErrorMessage(mensagemErro);
+        setShowErrorDialog(true);
+        console.error("❌ Erro de autenticação:", error.message);
+        return;
+      }
 
-      localStorage.setItem('colaboradorLogado', JSON.stringify(colaboradorData));
+      if (data.user) {
+        console.log("✅ Login bem-sucedido:", data.user.email);
 
-      // Redireciona para página de solicitar benefício
-      navigate('/solicitarbeneficio');
-    } else {
-      // Senha incorreta
-      console.log("❌ Senha incorreta. Esperada:", senhaEsperada, "Digitada:", senhaDigitada);
+        // Salva dados do usuário no localStorage para compatibilidade com o resto do sistema
+        const colaboradorData = {
+          id: data.user.id,
+          email: data.user.email || '',
+          nome: data.user.user_metadata?.nome || data.user.email?.split('@')[0] || 'Usuário',
+          matricula: data.user.user_metadata?.matricula || '',
+          cpf: data.user.user_metadata?.cpf || '',
+          dataNascimento: data.user.user_metadata?.dataNascimento || '',
+          loginTimestamp: new Date().toISOString()
+        };
+
+        localStorage.setItem('colaboradorLogado', JSON.stringify(colaboradorData));
+
+        // Redireciona para Portal do Parceiro
+        navigate('/portalparceiro');
+      }
+    } catch (error) {
+      console.error("❌ Erro inesperado ao fazer login:", error);
+      setErrorMessage("Erro inesperado. Tente novamente");
       setShowErrorDialog(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex">
       {/* Seção Esquerda - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-primary-700 to-primary relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        {/* Gradiente de fundo baseado no Figma */}
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(180deg, rgb(88, 177, 240) 0%, rgb(4, 20, 44) 100%)' }}
+        />
+
+        {/* Imagem hero baseada no Figma */}
+        <img
+          src={loginHero}
+          alt="Hero"
+          className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[90%] object-contain z-[1]"
+        />
+
         {/* Padrão de pontos decorativo */}
-        <div className="absolute top-0 right-0 w-1/2 h-full opacity-20">
+        <div className="absolute top-0 right-0 w-1/2 h-full opacity-20 z-[2]">
           <div className="grid grid-cols-12 gap-2 p-8">
             {Array.from({ length: 144 }).map((_, i) => (
               <div
@@ -150,46 +198,9 @@ const Login = () => {
         </div>
 
         {/* Conteúdo da seção de branding */}
-        <div className="relative z-10 flex flex-col justify-center items-center w-full px-12 text-white">
-          {/* Ilustração com formas geométricas */}
-          <div className="mb-8 max-w-md w-full aspect-square relative">
-            {/* Container principal com fundo e sombra */}
-            <div className="w-full h-full rounded-2xl bg-white/10 backdrop-blur-sm shadow-2xl p-8 relative overflow-hidden">
-
-              {/* Círculo grande superior esquerdo */}
-              <div className="absolute -top-8 -left-8 w-32 h-32 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 opacity-60 animate-pulse"
-                   style={{ animationDuration: '4s' }} />
-
-              {/* Círculo médio inferior direito */}
-              <div className="absolute -bottom-6 -right-6 w-40 h-40 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 opacity-50 animate-pulse"
-                   style={{ animationDuration: '5s', animationDelay: '1s' }} />
-
-              {/* Retângulo rotacionado centro-esquerda */}
-              <div className="absolute top-1/4 left-12 w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 opacity-40 rounded-xl transform rotate-12 animate-pulse"
-                   style={{ animationDuration: '6s', animationDelay: '0.5s' }} />
-
-              {/* Quadrado pequeno superior direito */}
-              <div className="absolute top-16 right-20 w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-500 opacity-50 rounded-lg transform -rotate-12" />
-
-              {/* Círculo pequeno centro */}
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-gradient-to-br from-indigo-400 to-blue-600 opacity-70 animate-pulse"
-                   style={{ animationDuration: '3s', animationDelay: '2s' }} />
-
-              {/* Retângulo horizontal inferior centro */}
-              <div className="absolute bottom-20 left-1/4 w-32 h-12 bg-gradient-to-r from-teal-400 to-cyan-500 opacity-40 rounded-full transform rotate-6" />
-
-              {/* Quadrado médio centro-direita */}
-              <div className="absolute top-1/3 right-16 w-20 h-20 bg-gradient-to-br from-rose-400 to-red-500 opacity-45 rounded-lg transform rotate-45 animate-pulse"
-                   style={{ animationDuration: '5s', animationDelay: '1.5s' }} />
-
-              {/* Círculo extra pequeno decorativo */}
-              <div className="absolute bottom-1/3 left-20 w-12 h-12 rounded-full bg-gradient-to-br from-violet-400 to-purple-600 opacity-60" />
-
-            </div>
-          </div>
-
+        <div className="relative z-10 flex flex-col justify-end items-center w-full px-12 pb-12 text-white">
           {/* Texto de branding */}
-          <div className="text-center max-w-lg">
+          <div className="text-left max-w-lg">
             <h1 className="text-4xl font-bold mb-4 leading-tight">
               Sua ponte de comunicação com o RH
               <span className="inline-flex items-center ml-2">
@@ -239,7 +250,7 @@ const Login = () => {
               Acesse sua conta
             </h2>
             <p className="text-sm text-muted-foreground">
-              Entre com sua matrícula ou CPF
+              Entre com seu email e senha
             </p>
           </div>
 
@@ -247,23 +258,33 @@ const Login = () => {
           <Card className="border-border/50 shadow-lg">
             <CardContent className="pt-6">
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Campo de Matrícula ou CPF */}
+                {/* Campo de Email */}
                 <div className="space-y-2">
-                  <Label htmlFor="matriculaOuCpf" className="text-foreground">
-                    Matrícula ou CPF
+                  <Label htmlFor="email" className="text-foreground">
+                    Email
                   </Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                     <Input
-                      id="matriculaOuCpf"
-                      type="text"
-                      placeholder="Digite sua matrícula ou CPF"
-                      value={matriculaOuCpf}
-                      onChange={(e) => setMatriculaOuCpf(e.target.value)}
-                      className="pl-10"
-                      required
+                      id="email"
+                      type="email"
+                      placeholder="Digite seu email"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        setEmailError("");
+                      }}
+                      className={`pl-10 ${emailError ? 'border-red-500' : ''}`}
+                      disabled={isLoading}
+                      aria-describedby={emailError ? "email-error" : undefined}
                     />
                   </div>
+                  {emailError && (
+                    <p id="email-error" className="text-sm text-red-600 flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" />
+                      {emailError}
+                    </p>
+                  )}
                 </div>
 
                 {/* Campo de Senha */}
@@ -276,16 +297,21 @@ const Login = () => {
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="3 últimos dígitos CPF + Dia Mês Nascimento"
+                      placeholder="Digite sua senha"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 pr-10"
-                      required
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        setPasswordError("");
+                      }}
+                      className={`pl-10 pr-10 ${passwordError ? 'border-red-500' : ''}`}
+                      disabled={isLoading}
+                      aria-describedby={passwordError ? "password-error" : undefined}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      disabled={isLoading}
                     >
                       {showPassword ? (
                         <EyeOff className="h-4 w-4" />
@@ -294,6 +320,12 @@ const Login = () => {
                       )}
                     </button>
                   </div>
+                  {passwordError && (
+                    <p id="password-error" className="text-sm text-red-600 flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" />
+                      {passwordError}
+                    </p>
+                  )}
                 </div>
 
                 {/* Link Esqueceu a senha */}
@@ -310,8 +342,16 @@ const Login = () => {
                 <Button
                   type="submit"
                   className="w-full bg-primary hover:bg-primary-700 text-primary-foreground font-medium h-11"
+                  disabled={isLoading}
                 >
-                  FAZER LOGIN
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Entrando...
+                    </>
+                  ) : (
+                    'FAZER LOGIN'
+                  )}
                 </Button>
               </form>
             </CardContent>
@@ -341,13 +381,16 @@ const Login = () => {
                 Erro de Autenticação
               </DialogTitle>
               <DialogDescription className="text-slate-600 pt-2">
-                Matrícula/CPF ou senha incorreta. Por favor, verifique suas credenciais e tente novamente.
+                {errorMessage || "Erro ao fazer login. Por favor, verifique suas credenciais e tente novamente."}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="sm:justify-center">
               <Button
                 type="button"
-                onClick={() => setShowErrorDialog(false)}
+                onClick={() => {
+                  setShowErrorDialog(false);
+                  setErrorMessage("");
+                }}
                 className="w-full sm:w-auto bg-primary hover:bg-primary-700 text-white"
               >
                 OK

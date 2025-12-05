@@ -1,19 +1,30 @@
-import { Search, Bell, Settings, User, CheckCircle, Clock, XCircle, ClipboardCheck, ExternalLink } from "lucide-react";
+import { Search, Bell, Settings, User, CheckCircle, Clock, XCircle, ClipboardCheck, ExternalLink, LogOut, Mail, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { NotificacaoSolicitacao } from "@/types/notificacao";
 import { carregarSolicitacoes, marcarTodasComoLidas } from "@/utils/solicitacoesStorage";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { supabase } from "@/lib/supabase";
 
 const Header = () => {
   const navigate = useNavigate();
   const [notificacoes, setNotificacoes] = useState<NotificacaoSolicitacao[]>([]);
   const [isNotificacoesOpen, setIsNotificacoesOpen] = useState(false);
+  const { user, isLoggedIn } = useCurrentUser();
 
   // Carregar notificações do localStorage ao montar o componente
   useEffect(() => {
@@ -81,6 +92,59 @@ const Header = () => {
     setNotificacoes(prev =>
       prev.map(n => n.id === id ? { ...n, lida: true } : n)
     );
+  };
+
+  // Função para gerar iniciais do nome
+  const getIniciais = (nome: string): string => {
+    if (!nome) return 'U';
+    const palavras = nome.trim().split(' ').filter(p => p.length > 0);
+    if (palavras.length === 0) return 'U';
+    if (palavras.length === 1) return palavras[0].substring(0, 2).toUpperCase();
+    return (palavras[0][0] + palavras[palavras.length - 1][0]).toUpperCase();
+  };
+
+  // Função para ocultar parte do e-mail
+  const ocultarEmail = (email: string): string => {
+    if (!email || email === 'Sem email cadastrado') return email;
+
+    const [localPart, domain] = email.split('@');
+    if (!domain) return email;
+
+    // Mostra os primeiros 3 caracteres e os últimos 2 do local part
+    if (localPart.length <= 5) {
+      return `${localPart[0]}***@${domain}`;
+    }
+
+    const inicio = localPart.substring(0, 3);
+    const fim = localPart.substring(localPart.length - 2);
+
+    return `${inicio}***${fim}@${domain}`;
+  };
+
+  // Obter nome e cargo do usuário
+  const nomeUsuario = user?.nome || 'Usuário';
+  const emailUsuario = user?.email || 'Sem email cadastrado';
+  const cargoUsuario = 'Parceiro'; // Pode ser expandido para buscar do perfil do usuário
+  const iniciaisUsuario = getIniciais(nomeUsuario);
+
+  // Obter nome da farmácia (pode ser expandido para buscar dinamicamente)
+  const nomeFarmacia = 'Farmácia Central'; // TODO: Buscar do perfil do parceiro quando disponível
+
+  // Função para fazer logout
+  const handleLogout = async () => {
+    try {
+      // Fazer logout do Supabase
+      await supabase.auth.signOut();
+
+      // Limpar dados do localStorage
+      localStorage.removeItem('colaboradorLogado');
+      localStorage.removeItem('colaborador');
+
+      // Redirecionar para a página de login
+      navigate('/login');
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    }
   };
 
   return (
@@ -222,15 +286,45 @@ const Header = () => {
             <Settings className="h-5 w-5" />
           </Button>
 
-          <div className="flex items-center space-x-3 pl-3 border-l border-border/50">
-            <div className="text-right">
-              <p className="text-sm font-medium">Emanuel Silva</p>
-              <p className="text-xs text-muted-foreground">Gerente de TI</p>
-            </div>
-            <Avatar className="h-9 w-9">
-              <AvatarFallback className="bg-primary text-primary-foreground">AS</AvatarFallback>
-            </Avatar>
+          {/* Nome da Farmácia */}
+          <div className="hidden lg:flex items-center space-x-2 px-3 py-2 rounded-lg bg-muted/30">
+            <Store className="w-5 h-5 text-primary" />
+            <span className="text-sm font-medium text-foreground">{nomeFarmacia}</span>
           </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center space-x-3 pl-3 border-l border-border/50 hover:bg-muted/50 rounded-lg px-3 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30">
+                <div className="text-right">
+                  <p className="text-sm font-medium">{nomeUsuario}</p>
+                  <p className="text-xs text-muted-foreground">{cargoUsuario}</p>
+                </div>
+                <Avatar className="h-9 w-9">
+                  <AvatarFallback className="bg-primary text-primary-foreground">{iniciaisUsuario}</AvatarFallback>
+                </Avatar>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{nomeUsuario}</p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {cargoUsuario}
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="cursor-pointer">
+                <Mail className="mr-2 h-4 w-4" />
+                <span>{ocultarEmail(emailUsuario)}</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Sair</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
