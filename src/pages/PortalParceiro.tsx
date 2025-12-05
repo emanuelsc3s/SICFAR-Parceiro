@@ -93,7 +93,7 @@ const PortalParceiro = () => {
     { name: "Início", icon: Home },
     { name: "Validar Voucher", icon: QrCode },
     { name: "Histórico", icon: History },
-    { name: "Financeiro", icon: DollarSign },
+    { name: "Faturas", icon: DollarSign },
     { name: "Configurações", icon: Settings }
   ];
 
@@ -520,6 +520,8 @@ const PortalParceiro = () => {
                   setActiveButton(button.name);
                   if (button.name === "Validar Voucher") {
                     navigate('/scannerparceiro');
+                  } else if (button.name === "Faturas") {
+                    navigate('/beneficiofaturas');
                   }
                 }}
                 aria-current={activeButton === button.name ? "page" : undefined}
