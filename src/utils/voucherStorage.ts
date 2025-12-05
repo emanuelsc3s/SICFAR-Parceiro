@@ -123,13 +123,13 @@ export const buscarVouchersPorParceiro = (parceiro: string): VoucherEmitido[] =>
  * @returns true se atualizou com sucesso, false caso contrário
  */
 export const atualizarStatusVoucher = (
-  voucherId: string, 
+  voucherId: string,
   novoStatus: 'emitido' | 'resgatado' | 'expirado'
 ): boolean => {
   try {
     const vouchers = getVouchersEmitidos();
     const index = vouchers.findIndex(v => v.id === voucherId);
-    
+
     if (index === -1) {
       console.warn('⚠️ Voucher não encontrado:', voucherId);
       return false;
@@ -137,11 +137,78 @@ export const atualizarStatusVoucher = (
 
     vouchers[index].status = novoStatus;
     localStorage.setItem(VOUCHERS_KEY, JSON.stringify(vouchers));
-    
+
     console.log('✅ Status do voucher atualizado:', voucherId, novoStatus);
     return true;
   } catch (error) {
     console.error('❌ Erro ao atualizar status do voucher:', error);
+    return false;
+  }
+};
+
+/**
+ * Registra o resgate de um voucher
+ * @param voucher - Dados completos do voucher a ser resgatado
+ * @param valorResgatado - Valor resgatado
+ * @returns true se registrou com sucesso, false caso contrário
+ */
+export const registrarResgateVoucher = (
+  voucher: {
+    codigo: string;
+    beneficiario: string;
+    cpf?: string;
+    valor: number;
+    estabelecimento?: string;
+    beneficios?: string[];
+  },
+  valorResgatado: number
+): boolean => {
+  try {
+    const vouchers = getVouchersEmitidos();
+    const index = vouchers.findIndex(v => v.id === voucher.codigo);
+
+    const agora = new Date();
+    const dataResgate = agora.toLocaleDateString('pt-BR');
+    const horaResgate = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+    if (index === -1) {
+      // Voucher não existe, criar novo
+      console.log('📝 Criando novo voucher no localStorage:', voucher.codigo);
+
+      const novoVoucher: VoucherEmitido = {
+        id: voucher.codigo,
+        funcionario: voucher.beneficiario,
+        cpf: voucher.cpf || 'Não informado',
+        valor: valorResgatado,
+        dataResgate: dataResgate,
+        horaResgate: horaResgate,
+        beneficios: voucher.beneficios || [],
+        parceiro: voucher.estabelecimento || 'Estabelecimento',
+        status: 'resgatado'
+      };
+
+      vouchers.push(novoVoucher);
+    } else {
+      // Voucher existe, atualizar
+      console.log('🔄 Atualizando voucher existente:', voucher.codigo);
+
+      vouchers[index].status = 'resgatado';
+      vouchers[index].dataResgate = dataResgate;
+      vouchers[index].horaResgate = horaResgate;
+      vouchers[index].valor = valorResgatado;
+    }
+
+    localStorage.setItem(VOUCHERS_KEY, JSON.stringify(vouchers));
+
+    // Dispara evento customizado para notificar outras partes da aplicação
+    window.dispatchEvent(new CustomEvent('voucherResgatado', {
+      detail: { voucherId: voucher.codigo, voucher: vouchers[index >= 0 ? index : vouchers.length - 1] }
+    }));
+
+    console.log('✅ Resgate do voucher registrado:', voucher.codigo);
+    return true;
+  } catch (error) {
+    console.error('❌ Erro ao registrar resgate do voucher:', error);
     return false;
   }
 };

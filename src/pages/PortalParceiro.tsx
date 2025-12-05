@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Home,
@@ -98,7 +98,8 @@ const PortalParceiro = () => {
   ];
 
   // Dados mockados para demonstração - Simula vouchers recebidos pelo parceiro
-  const mockVouchers: VoucherParceiro[] = [
+  // useMemo para evitar recriação em cada render e satisfazer a dependência do useEffect
+  const mockVouchers: VoucherParceiro[] = React.useMemo(() => [
     {
       id: "VCH001",
       codigo: "VOU12345678",
@@ -152,8 +153,114 @@ const PortalParceiro = () => {
       horaRecebimento: "11:30",
       status: "validado",
       dataValidacao: "30/11/2024 11:35"
+    },
+    {
+      id: "VCH006",
+      codigo: "VOU22334455",
+      colaborador: "Fernanda Almeida",
+      cpf: "222.333.444-55",
+      valor: 120.00,
+      dataRecebimento: "03/12/2024",
+      horaRecebimento: "08:45",
+      status: "pendente"
+    },
+    {
+      id: "VCH007",
+      codigo: "VOU66778899",
+      colaborador: "Roberto Mendes",
+      cpf: "666.777.888-99",
+      valor: 200.00,
+      dataRecebimento: "03/12/2024",
+      horaRecebimento: "13:20",
+      status: "validado",
+      dataValidacao: "03/12/2024 13:25"
+    },
+    {
+      id: "VCH008",
+      codigo: "VOU33445566",
+      colaborador: "Juliana Ferreira",
+      cpf: "333.444.555-66",
+      valor: 95.00,
+      dataRecebimento: "02/12/2024",
+      horaRecebimento: "15:10",
+      status: "pendente"
+    },
+    {
+      id: "VCH009",
+      codigo: "VOU77889900",
+      colaborador: "Ricardo Souza",
+      cpf: "777.888.999-00",
+      valor: 180.00,
+      dataRecebimento: "02/12/2024",
+      horaRecebimento: "11:50",
+      status: "validado",
+      dataValidacao: "02/12/2024 12:00"
+    },
+    {
+      id: "VCH010",
+      codigo: "VOU44556677",
+      colaborador: "Patrícia Rocha",
+      cpf: "444.555.666-77",
+      valor: 350.00,
+      dataRecebimento: "01/12/2024",
+      horaRecebimento: "17:30",
+      status: "rejeitado",
+      motivoRejeicao: "CPF não corresponde ao titular"
+    },
+    {
+      id: "VCH011",
+      codigo: "VOU88990011",
+      colaborador: "Marcos Pereira",
+      cpf: "888.999.000-11",
+      valor: 145.00,
+      dataRecebimento: "30/11/2024",
+      horaRecebimento: "10:15",
+      status: "validado",
+      dataValidacao: "30/11/2024 10:20"
+    },
+    {
+      id: "VCH012",
+      codigo: "VOU55443322",
+      colaborador: "Camila Barbosa",
+      cpf: "554.433.222-11",
+      valor: 220.00,
+      dataRecebimento: "03/12/2024",
+      horaRecebimento: "14:40",
+      status: "pendente"
+    },
+    {
+      id: "VCH013",
+      codigo: "VOU99887766",
+      colaborador: "Bruno Cardoso",
+      cpf: "998.877.666-55",
+      valor: 165.00,
+      dataRecebimento: "29/11/2024",
+      horaRecebimento: "09:30",
+      status: "validado",
+      dataValidacao: "29/11/2024 09:35"
+    },
+    {
+      id: "VCH014",
+      codigo: "VOU11009988",
+      colaborador: "Larissa Martins",
+      cpf: "110.099.888-77",
+      valor: 280.00,
+      dataRecebimento: "03/12/2024",
+      horaRecebimento: "16:00",
+      status: "pendente"
+    },
+    {
+      id: "VCH015",
+      codigo: "VOU66554433",
+      colaborador: "Thiago Nascimento",
+      cpf: "665.544.333-22",
+      valor: 190.00,
+      dataRecebimento: "28/11/2024",
+      horaRecebimento: "12:45",
+      status: "validado",
+      dataValidacao: "28/11/2024 12:50"
     }
-  ];
+  ], []);
 
   // Carregar vouchers ao montar o componente
   useEffect(() => {
@@ -164,6 +271,8 @@ const PortalParceiro = () => {
         setTimeout(() => {
           // Combina vouchers do localStorage com dados mockados
           const vouchersStorage = getVouchersEmitidos();
+          console.log('📦 Vouchers do localStorage:', vouchersStorage);
+
           const vouchersConvertidos: VoucherParceiro[] = vouchersStorage.map((v: VoucherEmitido) => ({
             id: v.id,
             codigo: v.id,
@@ -172,20 +281,26 @@ const PortalParceiro = () => {
             valor: v.valor,
             dataRecebimento: v.dataResgate || new Date().toLocaleDateString('pt-BR'),
             horaRecebimento: v.horaResgate || new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-            status: v.status === 'resgatado' ? 'validado' : 'pendente' as 'pendente' | 'validado' | 'rejeitado'
+            status: v.status === 'resgatado' ? 'validado' : 'pendente' as 'pendente' | 'validado' | 'rejeitado',
+            dataValidacao: v.status === 'resgatado' && v.dataResgate && v.horaResgate
+              ? `${v.dataResgate} ${v.horaResgate}`
+              : undefined
           }));
-          
+
+          console.log('🔄 Vouchers convertidos:', vouchersConvertidos);
+
           // Combina e remove duplicatas
           const todosVouchers = [...vouchersConvertidos, ...mockVouchers];
           const vouchersUnicos = todosVouchers.filter((voucher, index, self) =>
             index === self.findIndex((v) => v.id === voucher.id)
           );
-          
+
+          console.log('✅ Total de vouchers únicos:', vouchersUnicos.length);
           setVouchers(vouchersUnicos);
           setIsLoading(false);
         }, 500);
       } catch (error) {
-        console.error('Erro ao carregar vouchers:', error);
+        console.error('❌ Erro ao carregar vouchers:', error);
         toast.error('Erro ao carregar vouchers');
         setVouchers(mockVouchers);
         setIsLoading(false);
@@ -196,12 +311,26 @@ const PortalParceiro = () => {
 
     // Listener para novos vouchers emitidos
     const handleNovoVoucher = () => {
+      console.log('🔔 Evento voucherEmitido recebido');
       carregarVouchers();
     };
 
+    // Listener para vouchers resgatados
+    const handleVoucherResgatado = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      console.log('🎉 Evento voucherResgatado recebido:', customEvent.detail);
+      carregarVouchers();
+      toast.success('Voucher resgatado atualizado!');
+    };
+
     window.addEventListener('voucherEmitido', handleNovoVoucher);
-    return () => window.removeEventListener('voucherEmitido', handleNovoVoucher);
-  }, []);
+    window.addEventListener('voucherResgatado', handleVoucherResgatado as EventListener);
+
+    return () => {
+      window.removeEventListener('voucherEmitido', handleNovoVoucher);
+      window.removeEventListener('voucherResgatado', handleVoucherResgatado as EventListener);
+    };
+  }, [mockVouchers]);
 
   // Calcular estatísticas baseadas nos vouchers
   const calcularEstatisticas = (): Estatisticas => {
@@ -269,7 +398,7 @@ const PortalParceiro = () => {
         return (
           <Badge className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100">
             <CheckCircle className="w-3 h-3 mr-1" />
-            Validado
+            Resgatado
           </Badge>
         );
       case "rejeitado":
@@ -298,7 +427,7 @@ const PortalParceiro = () => {
   const handleRejeitarVoucher = (voucherId: string) => {
     setVouchers(prev => prev.map(v =>
       v.id === voucherId
-        ? { ...v, status: 'rejeitado' as const, motivoRejeicao: 'Rejeitado pelo parceiro' }
+        ? { ...v, status: 'rejeitado' as const, motivoRejeicao: 'Rejeitado pelo parceiro', dataValidacao: new Date().toLocaleString('pt-BR') }
         : v
     ));
     toast.error('Voucher rejeitado');
@@ -467,6 +596,47 @@ const PortalParceiro = () => {
               Ver Histórico Completo
             </Button>
           </div>
+
+          {/* Dica de Códigos para Teste */}
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-xl">
+            <div className="flex gap-3">
+              <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-blue-600">
+                  <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path>
+                  <path d="M20 3v4"></path>
+                  <path d="M22 5h-4"></path>
+                  <path d="M4 17v2"></path>
+                  <path d="M5 18H3"></path>
+                </svg>
+              </div>
+              <div className="text-sm flex-1">
+                <p className="font-medium text-blue-900 mb-2">Códigos de Voucher para Testes</p>
+                <div className="text-blue-700 space-y-1">
+                  <p>
+                    <strong>Pendentes:</strong>{' '}
+                    <code className="bg-blue-100 px-2 py-0.5 rounded font-mono text-xs">VOU12345678</code>{' '}
+                    <code className="bg-blue-100 px-2 py-0.5 rounded font-mono text-xs">VOU22334455</code>{' '}
+                    <code className="bg-blue-100 px-2 py-0.5 rounded font-mono text-xs">VOU33445566</code>{' '}
+                    <code className="bg-blue-100 px-2 py-0.5 rounded font-mono text-xs">VOU55443322</code>{' '}
+                    <code className="bg-blue-100 px-2 py-0.5 rounded font-mono text-xs">VOU11009988</code>
+                  </p>
+                  <p>
+                    <strong>Validados:</strong>{' '}
+                    <code className="bg-green-100 px-2 py-0.5 rounded font-mono text-xs text-green-700">VOU87654321</code>{' '}
+                    <code className="bg-green-100 px-2 py-0.5 rounded font-mono text-xs text-green-700">VOU11223344</code>{' '}
+                    <code className="bg-green-100 px-2 py-0.5 rounded font-mono text-xs text-green-700">VOU99001122</code>{' '}
+                    <code className="bg-green-100 px-2 py-0.5 rounded font-mono text-xs text-green-700">VOU66778899</code>{' '}
+                    <code className="bg-green-100 px-2 py-0.5 rounded font-mono text-xs text-green-700">VOU77889900</code>
+                  </p>
+                  <p>
+                    <strong>Rejeitados:</strong>{' '}
+                    <code className="bg-red-100 px-2 py-0.5 rounded font-mono text-xs text-red-700">VOU55667788</code>{' '}
+                    <code className="bg-red-100 px-2 py-0.5 rounded font-mono text-xs text-red-700">VOU44556677</code>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Cards de Estatísticas */}
@@ -582,7 +752,7 @@ const PortalParceiro = () => {
                 <CardHeader>
                   <CardTitle className="text-xl font-semibold">Vouchers Aguardando Validação</CardTitle>
                   <CardDescription>
-                    Vouchers recebidos que precisam ser validados para confirmar o atendimento
+                    Visualização de vouchers emitidos ainda não resgatados - aguardando validação para confirmar o atendimento
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -789,7 +959,7 @@ const PortalParceiro = () => {
                           <TableHead>Valor</TableHead>
                           <TableHead className="hidden sm:table-cell">Data/Hora</TableHead>
                           <TableHead>Status</TableHead>
-                          <TableHead className="text-right">Ações</TableHead>
+                          <TableHead className="hidden lg:table-cell">Data Processada</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -813,28 +983,9 @@ const PortalParceiro = () => {
                                 {voucher.dataRecebimento} às {voucher.horaRecebimento}
                               </TableCell>
                               <TableCell>{getStatusBadge(voucher.status)}</TableCell>
-                              <TableCell className="text-right">
-                                {voucher.status === 'pendente' ? (
-                                  <div className="flex items-center justify-end gap-2">
-                                    <Button
-                                      size="sm"
-                                      onClick={() => handleValidarVoucher(voucher.id)}
-                                      style={{ backgroundColor: "#10B981" }}
-                                      className="text-white hover:opacity-90"
-                                      aria-label={`Validar voucher ${voucher.codigo}`}
-                                    >
-                                      <CheckCircle className="w-4 h-4" aria-hidden="true" />
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() => handleRejeitarVoucher(voucher.id)}
-                                      className="text-red-600 border-red-200 hover:bg-red-50"
-                                      aria-label={`Rejeitar voucher ${voucher.codigo}`}
-                                    >
-                                      <XCircle className="w-4 h-4" aria-hidden="true" />
-                                    </Button>
-                                  </div>
+                              <TableCell className="hidden lg:table-cell">
+                                {voucher.status !== 'pendente' && voucher.dataValidacao ? (
+                                  <span className="text-sm text-gray-600">{voucher.dataValidacao}</span>
                                 ) : (
                                   <span className="text-sm text-gray-400">-</span>
                                 )}

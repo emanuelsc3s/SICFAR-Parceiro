@@ -2,7 +2,7 @@
 
 ## 📝 Regras de Documentação
 
-- Só crie arquivo de documentação quando claramente solicitado.
+- Só crie arquivo de documentação em markdown quando claramente solicitado.
 
 ## 🔒 Segurança em Documentação
 
